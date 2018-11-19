@@ -190,5 +190,5 @@ output_bit(circshift(real(up) < 0 , 1)) = 1;
 
 [SER,ratio_ser] = symerr(s_est,qam_modulated_data);
 [BER,ratio_ber] = biterr(output_bit,bits_sent);
-fprintf('SNR: %d\nSER: %0.4f\nBER: %0.4f\n',channel_snr_dB,ratio_ser,ratio_ber)
+%fprintf('SNR: %d\nSER: %0.4f\nBER: %0.4f\n',channel_snr_dB,ratio_ser,ratio_ber)
 
