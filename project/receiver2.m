@@ -192,3 +192,7 @@ output_bit(circshift(real(up) < 0 , 1)) = 1;
 [BER,ratio_ber] = biterr(output_bit,bits_sent);
 %fprintf('SNR: %d\nSER: %0.4f\nBER: %0.4f\n',channel_snr_dB,ratio_ser,ratio_ber)
 
+% new line to add just for git hub
+% more test lines
+
+
