@@ -14,18 +14,18 @@ N_rx = 2;
 %%% Channel %%%
 channel_order = 3; % separate than number of taps
 
-channel_L = 4;
+channel_L = 2;
 channel_tap = zeros(N_rx,N_tx,channel_L);  %h_(receiver)(transmitter)
 
-channel_tap(1,1,:) = [1+1j, -1/2+1j/3, 1/4j     ,1/6].'; %h11
-channel_tap(2,1,:) = [1+1j, -1/2+1j/3, 1/4j     ,1/6]';  %h21
-channel_tap(1,2,:) = [1   , -1j/2    , 1/4+1j/4 ,1/8].';       %h12
-channel_tap(2,2,:) = [1   , -1j/2    , 1/4+1j/4 ,1/8]';        %h22
+% channel_tap(1,1,:) = [1+1j, -1/2+1j/3, 1/4j     ,1/6].'; %h11
+% channel_tap(2,1,:) = [1+1j, -1/2+1j/3, 1/4j     ,1/6]';  %h21
+% channel_tap(1,2,:) = [1   , -1j/2    , 1/4+1j/4 ,1/8].';       %h12
+% channel_tap(2,2,:) = [1   , -1j/2    , 1/4+1j/4 ,1/8]';        %h22
 
-% channel_tap(1,1,:) = [1   ; 1/2 ];
-% channel_tap(2,1,:) = [1+1j; 1j/2];
-% channel_tap(1,2,:)= [1j ; -1/2];
-% channel_tap(2,2,:)= [1-1j; -1j/2];
+channel_tap(1,1,:) = [1   ; 1/2 ];
+channel_tap(2,1,:) = [1+1j; 1j/2];
+channel_tap(1,2,:)= [1j ; -1/2];
+channel_tap(2,2,:)= [1-1j; -1j/2];
 
 
 % bad channel example. why? makes Zero-forcing go to shit. G is bad.
@@ -66,7 +66,7 @@ sys_params_base = init_sdr('usrp_center_frequency', 2.40e9,...
                            'channel_snr_dB', channel_snr_dB,...  % Create the common system parameters between transmitter and receiver
                            'N_tx',N_tx, ...  % number of transmitter antennas
                            'N_rx',N_rx, ...    % number of receiver antennas
-                           'sim_CF', true, ... % simulate carrier freq offset 
+                           'sim_CF', false, ... % simulate carrier freq offset 
                            'sim_delay',false);  % simulate delay
                        
 % System parameters for the receiver       
@@ -100,11 +100,9 @@ end
 % downsample
 downsampled = downsample(rx_sig_all,sys_params_rx.downsampling_factor);
 
-%% cfo estimation
-%sys_params_rx.OFDM_preamble_length;
-y_cfo = downsampled(161:224,:);
-n = (0:(N/2 - 1))';
-e_frac = angle(sum(sum(conj(y_cfo(n+1+N/2,:)).*  y_cfo(n+1,:))))/pi/N;
+
+
+
 
 %% Channel estimation
 Y = reshape(transpose(fft(downsampled(L_CP+1:L_CP+N,:),N)/sqrt(N)),[],1); % why does sqrt(8) provide the correct scaling?
@@ -153,7 +151,7 @@ qam2(1,1,:) = reshape(repmat(transpose(qam),4,1),[],1);
 qam2(2,1,:) = repmat(qam,4,1);
 
 %% detection ML
-% need to change data indices 
+% need to change lengt
 Ydata = downsampled(sys_params_rx.OFDM_preamble_length+1:end,:); % no training
 Ydata = reshape(Ydata,[],10); % blocks in time  
 Ydata = Ydata(L_CP+1:end,:); % no prefix in time
