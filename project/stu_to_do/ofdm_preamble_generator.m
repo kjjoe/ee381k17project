@@ -63,11 +63,8 @@ function sys_params_base = ofdm_preamble_generator(sys_params_base)
         % cfo estimation
         rng(1)
         t1 = qam_mod(randi([0 1],N_carriers*2,1),4);
-        t2 = qam_mod(randi([0 1],N_carriers*2,1),4);
         m = 0 : N_carriers/2 - 1;
         n = 0:63;
-        
-        %t3 = t2(2*m +1).* conj(t1(2*m+1));
         
         ww = exp(1j*2*pi*n'*m/(N_carriers/2))* t1(2*m+1)/N_carriers;
         

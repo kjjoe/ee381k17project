@@ -35,15 +35,6 @@ addpath(genpath([pwd '/Libs']));
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Create the common system parameters between transmitter and receiver
-
-% DATA GENERATION BEFORE THE SEED NUMBER IN INITIALIZATION
-% Step 1: generate random bit for transmission
-bits_sent = randi([0 1], sys_params_tx.payload_size_in_bits, 1);
- %bits_sent = zeros(sys_params_tx.payload_size_in_bits,1);
-% bits_sent(1:4:end) = 1;
-% bits_sent(4:4:end) = 1;
-
-
 M = 4;
 payload_size_in_ofdm_symbols = 10;
 sys_params_base = init_sdr('usrp_center_frequency', 2.40e9, ...
@@ -70,7 +61,13 @@ sys_params_tx = init_sdr_tx(sys_params_base,...
                            'downsampling_factor', 10); % Downsampling factor
 
 %% Data generation 
- 
+% Step 1: generate random bit for transmission
+rng(10)
+bits_sent = randi([0 1], sys_params_tx.payload_size_in_bits, 1);
+ %bits_sent = zeros(sys_params_tx.payload_size_in_bits,1);
+% bits_sent(1:4:end) = 1;
+% bits_sent(4:4:end) = 1;
+
 % Step 2: modulate the bit stream with QAM
 qam_modulated_data = qam_mod(bits_sent, sys_params_tx.M);
 
