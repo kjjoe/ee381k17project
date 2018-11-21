@@ -55,10 +55,10 @@ function sys_params_base = ofdm_preamble_generator(sys_params_base)
         
             sys_params_base.single_OFDM_training_seq_freq_domain{loop} = t;
             sys_params_base.single_OFDM_training_seq_time_domain{loop} = w;
-            sys_params_base.OFDM_preamble{loop} = preamble;
+            sys_params_base.OFDM_preamble{loop} = totalw;
         end
         sys_params_base.single_OFDM_training_seq_time_domain_length = N_carriers; 
-        sys_params_base.OFDM_preamble_length = length(preamble);
+        sys_params_base.OFDM_preamble_length = length(totalw);
         
         % cfo estimation
         rng(1)
@@ -69,6 +69,10 @@ function sys_params_base = ofdm_preamble_generator(sys_params_base)
         ww = exp(1j*2*pi*n'*m/(N_carriers/2))* t1(2*m+1)/N_carriers;
         
         sys_params_base.OFDM_CFO = [ww(end-L_P+1:end); ww];
+        
+        sys_params_base.cfo_start = sys_params_base.OFDM_preamble_length+1;
+        sys_params_base.data_start = sys_params_base.cfo_start + length(sys_params_base.OFDM_CFO);
+        
 end
 
 

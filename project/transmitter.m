@@ -62,9 +62,9 @@ sys_params_tx = init_sdr_tx(sys_params_base,...
 
 %% Data generation 
 % Step 1: generate random bit for transmission
-rng(10)
-bits_sent = randi([0 1], sys_params_tx.payload_size_in_bits, 1);
- %bits_sent = zeros(sys_params_tx.payload_size_in_bits,1);
+%rng(15)
+%bits_sent = randi([0 1], sys_params_tx.payload_size_in_bits, 1);
+bits_sent = zeros(sys_params_tx.payload_size_in_bits,1);
 % bits_sent(1:4:end) = 1;
 % bits_sent(4:4:end) = 1;
 
