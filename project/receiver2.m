@@ -14,13 +14,13 @@ N_rx = 2;
 %%% Channel %%%
 channel_order = 3; % separate than number of taps
 
-channel_L = 4;
+channel_L = 1;
 channel_tap = zeros(N_rx,N_tx,channel_L);  %h_(receiver)(transmitter)
 
-channel_tap(1,1,:) = [1+1j, -1/2+1j/3, 1/4j     ,1/6].'; %h11
-channel_tap(2,1,:) = [1+1j, -1/2+1j/3, 1/4j     ,1/6]';  %h21
-channel_tap(1,2,:) = [1   , -1j/2    , 1/4+1j/4 ,1/8].';       %h12
-channel_tap(2,2,:) = [1   , -1j/2    , 1/4+1j/4 ,1/8]';        %h22
+% channel_tap(1,1,:) = [1+1j, -1/2+1j/3, 1/4j     ,1/6].'; %h11
+% channel_tap(2,1,:) = [1+1j, -1/2+1j/3, 1/4j     ,1/6]';  %h21
+% channel_tap(1,2,:) = [1   , -1j/2    , 1/4+1j/4 ,1/8].';       %h12
+% channel_tap(2,2,:) = [1   , -1j/2    , 1/4+1j/4 ,1/8]';        %h22
 
 % channel_tap(1,1,:) = [1   ; 1/2 ];
 % channel_tap(2,1,:) = [1+1j; 1j/2];
@@ -35,12 +35,12 @@ channel_tap(2,2,:) = [1   , -1j/2    , 1/4+1j/4 ,1/8]';        %h22
 % channel_tap(2,2,:)= 0.5;
 
 % also bad channel example. 
-% channel_tap(1,1,:)= 1;
-% channel_tap(2,1,:)= 1;
-% channel_tap(1,2,:)= 1;
-% channel_tap(2,2,:)= 1;
+channel_tap(1,1,:)= 1;
+channel_tap(2,1,:)= 1;
+channel_tap(1,2,:)= 1;
+channel_tap(2,2,:)= 1;
 
-channel_snr_dB = 19;
+channel_snr_dB = 100;
 cyclic_prefix = 0;
 channel_delay = 0;
 %%% basic parameters %%%
@@ -104,7 +104,11 @@ downsampled = downsample(rx_sig_all,sys_params_rx.downsampling_factor);
 %sys_params_rx.OFDM_preamble_length;
 y_cfo = downsampled(161:224,:);
 n = (0:(N/2 - 1))';
-e_frac = angle(sum(sum(conj(y_cfo(n+1+N/2,:)).*  y_cfo(n+1,:))))/pi/N;
+e_frac = angle(sum(sum(conj(y_cfo(n+1+N/2,:)).*  y_cfo(n+1,:))))/pi/length(downsampled);
+
+n1 = (0:length(downsampled)-1)';
+c = downsampled.*exp(-1j*2*pi*e_frac*n1);
+
 
 %% Channel estimation
 Y = reshape(transpose(fft(downsampled(L_CP+1:L_CP+N,:),N)/sqrt(N)),[],1); % why does sqrt(8) provide the correct scaling?

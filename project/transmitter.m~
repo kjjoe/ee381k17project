@@ -70,7 +70,8 @@ sys_params_tx = init_sdr_tx(sys_params_base,...
                            'downsampling_factor', 10); % Downsampling factor
 
 %% Data generation 
- 
+
+
 % Step 2: modulate the bit stream with QAM
 qam_modulated_data = qam_mod(bits_sent, sys_params_tx.M);
 
