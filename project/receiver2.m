@@ -5,6 +5,9 @@
 addpath(genpath([pwd '/stu_to_do']));
 addpath(genpath([pwd '/Libs']));
 
+%ser2 = zeros(40,1);
+etotal = zeros(40,1);
+for snr = 1:40
 %% Simulation parameters
 M = 4;
 payload_size_in_ofdm_symbols = 10;
@@ -40,7 +43,7 @@ channel_tap(2,2,:) = [1   , -1j/2    , 1/4+1j/4 ,1/8]';        %h22
 % channel_tap(1,2,:)= 1;
 % channel_tap(2,2,:)= 1;
 
-channel_snr_dB = 100;
+channel_snr_dB = snr;
 cyclic_prefix = 0;
 channel_delay = 0;
 %%% basic parameters %%%
@@ -103,20 +106,28 @@ end
 downsampled = downsample(rx_sig_all,sys_params_rx.downsampling_factor);
 
 %% cfo estimation
-if false
+
+if sys_params_rx.sim_CF
     y_cfo = downsampled((cfo_start+L_CP):(cfo_start+L_CP+N-1),:);
     n = (0:(N/2 - 1))';
-    e_frac = angle(sum(sum(conj(y_cfo(n+1+N/2,:)).*  y_cfo(n+1,:))))/pi/length(downsampled);
-
+    e_frac = angle(sum(sum(conj(y_cfo(n+1+N/2,:)).*  y_cfo(n+1,:))))/pi/N;
+    %e_frac = -4e-5*length(downsampled)/64;
     n1 = (0:length(downsampled)-1)';
     cfo_done = downsampled.*exp(1j*2*pi*e_frac*n1);
-    d = cfo_done((cfo_start+L_CP):(cfo_start+L_CP+N-1),:);
+%    
+% figure(1)
+%     hold on
+% scatter(real(d(1:32,1)),imag(d(1:32,1)))
+% scatter(real(d(33:64,1)),imag(d(33:64,1)))
 else
     cfo_done = downsampled;
 end
 
 %% Channel estimation
-Y = reshape(transpose(fft(cfo_done(L_CP+1:L_CP+N,:),N)/sqrt(N)),[],1); % why does sqrt(8) provide the correct scaling?
+tmp = cfo_done(L_CP+1:L_CP+N,:);
+%tmp = tmp.*exp(1j*2*pi*e_frac*n1);
+
+Y = reshape(transpose(fft(tmp,N)/sqrt(N)),[],1); % why does sqrt(8) provide the correct scaling?
 
 t = reshape(transpose([sys_params_rx.single_OFDM_training_seq_freq_domain{1}, sys_params_rx.single_OFDM_training_seq_freq_domain{2}]),[],1);
 
@@ -172,7 +183,7 @@ Ydata = reshape(transpose(reshape(Ydata,[],2)),[],1); % remodulate
 % detect 1 block at a time
 s_est = zeros(bps*payload_size_in_ofdm_symbols/N_rx,N_rx);
 N2 = 2*N;
-forplots = [];
+forplots = []; % for debugging
 for block = 0:(payload_size_in_ofdm_symbols/N_rx)-1
     Ydatablock = Ydata(N2*block+1 : N2*block+N2  );
     s_tmp = zeros(bps*2,1);
@@ -188,38 +199,38 @@ for block = 0:(payload_size_in_ofdm_symbols/N_rx)-1
     s_est(bps*block+1 : bps*block+bps,:) = transpose(reshape(s_tmp,2,[]));
 end
 
-% no zero forcing
-s_est2 = zeros(bps*payload_size_in_ofdm_symbols/N_rx,N_rx);
-N2 = 2*N;
-forplots2 = [];
-forplots3 = [];
-
-qam3 = cell(N,1);
-for k = (sys_params_rx.data_carriers_index)
-    for index = 1:16
-        qam3{k}(:,:,index) = H(:,:,k)*qam2(:,:,index);
-    end
-end
-
-for block = 0:(payload_size_in_ofdm_symbols/N_rx)-1
-    Ydatablock = Ydata(N2*block+1 : N2*block+N2  );
-    s_tmp = zeros(bps*2,1);
-    magnitude = zeros(M^2,1);
-    index = 0;
-    for k = (sys_params_rx.data_carriers_index)
-        [~,ind] = min(reshape(vecnorm(Ydatablock(2*k+1:2*k+2)-qam3{k}),[],1));
-        s_tmp(2*index+1:2*index+2) = qam2(:,:,ind);
-        index = index+1;
-        forplots2 = [forplots2; qam3{k}(:,:,ind)];
-        forplots3 = [forplots3; Ydatablock(2*k+1:2*k+2)];
-    end
-    s_est2(bps*block+1 : bps*block+bps,:) = transpose(reshape(s_tmp,2,[]));
-end
-s = reshape(s_est2,[],1);
+% no zero forcing if you want
+% s_est2 = zeros(bps*payload_size_in_ofdm_symbols/N_rx,N_rx);
+% N2 = 2*N;
+% forplots2 = [];
+% forplots3 = [];
+% 
+% qam3 = cell(N,1);
+% for k = (sys_params_rx.data_carriers_index)
+%     for index = 1:16
+%         qam3{k}(:,:,index) = H(:,:,k)*qam2(:,:,index);
+%     end
+% end
+% 
+% for block = 0:(payload_size_in_ofdm_symbols/N_rx)-1
+%     Ydatablock = Ydata(N2*block+1 : N2*block+N2  );
+%     s_tmp = zeros(bps*2,1);
+%     magnitude = zeros(M^2,1);
+%     index = 0;
+%     for k = (sys_params_rx.data_carriers_index)
+%         [~,ind] = min(reshape(vecnorm(Ydatablock(2*k+1:2*k+2)-qam3{k}),[],1));
+%         s_tmp(2*index+1:2*index+2) = qam2(:,:,ind);
+%         index = index+1;
+%         forplots2 = [forplots2; qam3{k}(:,:,ind)];
+%         forplots3 = [forplots3; Ydatablock(2*k+1:2*k+2)];
+%     end
+%     s_est2(bps*block+1 : bps*block+bps,:) = transpose(reshape(s_tmp,2,[]));
+% end
+% s = reshape(s_est2,[],1);
 
 
 %% ofdm demodulation
-detect = s_est2;
+detect = s_est;
 
 detect = reshape(detect,[],1);
 
@@ -239,8 +250,10 @@ output_bit(circshift(real(up) < 0 , 1)) = 1;
 
 [SER,ratio_ser] = symerr(detect,qam_modulated_data);
 [BER,ratio_ber] = biterr(output_bit,bits_sent);
-%fprintf('SNR: %d\nSER: %0.4f\nBER: %0.4f\n',channel_snr_dB,ratio_ser,ratio_ber)
-
+fprintf('SNR: %d\nSER: %0.4f\nBER: %0.4f\n',channel_snr_dB,ratio_ser,ratio_ber)
+%ser2(snr) = ratio_ser;
+etotal(snr) = e_frac;
+end
 % new line to add just for git hub
 % more test lines
 
