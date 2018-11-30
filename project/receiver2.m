@@ -5,9 +5,10 @@
 addpath(genpath([pwd '/stu_to_do']));
 addpath(genpath([pwd '/Libs']));
 
-%ser2 = zeros(40,1);
-etotal = zeros(40,1);
-for snr = 1:40
+%ser = zeros(40,1);
+%ber = ser;
+%etotal = ser;
+%for snr = 1:1
 %% Simulation parameters
 M = 4;
 payload_size_in_ofdm_symbols = 10;
@@ -251,9 +252,10 @@ output_bit(circshift(real(up) < 0 , 1)) = 1;
 [SER,ratio_ser] = symerr(detect,qam_modulated_data);
 [BER,ratio_ber] = biterr(output_bit,bits_sent);
 fprintf('SNR: %d\nSER: %0.4f\nBER: %0.4f\n',channel_snr_dB,ratio_ser,ratio_ber)
-%ser2(snr) = ratio_ser;
-etotal(snr) = e_frac;
-end
+%ser(snr) = ratio_ser;
+%ber(snr) = ratio_ber;
+%etotal(snr) = e_frac;
+%end
 % new line to add just for git hub
 % more test lines
 

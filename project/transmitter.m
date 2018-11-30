@@ -1,40 +1,8 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% transmitter.m
-%
-% This is the main function for transmitting data
-%
-% Created Aug. 30, 2018 
-% Modified Nov. 1, 2018 
-% Robert W. Heath Jr.
-% Yi Zhang
-% The University of Texas at Austin
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-%% Initialization and add the required directorys to your path
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-% Initialize the program by clearing the memory, if the USRP device was
-% run previously, the command "clear all" is strongly recommended to
-% avoid that MATLAB considers the target USRP is in "Busy" mode. In
-% particular, just after this initialization and before running the 
-% following codes, you can double check that the yellow LED of 
-% the USRP Ethernet port (right side) is not flashing, namely that no data 
-% is being transmitted.
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%clear all;
 addpath(genpath([pwd '/stu_to_do']));
 addpath(genpath([pwd '/Libs']));
 
 %% Simulation parameters
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-% Initialize the system parameters for the transmitter
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Create the common system parameters between transmitter and receiver
 M = 4;
 payload_size_in_ofdm_symbols = 10;
 sys_params_base = init_sdr('usrp_center_frequency', 2.40e9, ...
@@ -63,8 +31,8 @@ sys_params_tx = init_sdr_tx(sys_params_base,...
 %% Data generation 
 % Step 1: generate random bit for transmission
 %rng(15)
-%bits_sent = randi([0 1], sys_params_tx.payload_size_in_bits, 1);
-bits_sent = zeros(sys_params_tx.payload_size_in_bits,1);
+bits_sent = randi([0 1], sys_params_tx.payload_size_in_bits, 1);
+%bits_sent = zeros(sys_params_tx.payload_size_in_bits,1);
 % bits_sent(1:4:end) = 1;
 % bits_sent(4:4:end) = 1;
 
@@ -98,22 +66,18 @@ end
 %save frame_to_send frame_to_send; 
 
 %% Data transmission
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-% Send data (in frame) to the USRP device and transmit
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-compile_it = false;
-use_codegen = false;
-use_wireless_link = false; % true: test with real wireless link. false: test with simulated channel  
-if compile_it
-    codegen('run_usrp_tx', '-args', {coder.Constant(sys_params_tx),type_frame_to_send}); %#ok<UNRCH>
-end
-if use_wireless_link
-    if use_codegen
-       clear run_usrp_tx_mex %#ok<UNRCH>
-       run_usrp_tx_mex(sys_params_tx,frame_to_send); 
-    else
-       run_usrp_tx(sys_params_tx,frame_to_send); 
-    end
-end
+
+% compile_it = false;
+% use_codegen = false;
+% use_wireless_link = false; % true: test with real wireless link. false: test with simulated channel  
+% if compile_it
+%     codegen('run_usrp_tx', '-args', {coder.Constant(sys_params_tx),type_frame_to_send}); %#ok<UNRCH>
+% end
+% if use_wireless_link
+%     if use_codegen
+%        clear run_usrp_tx_mex %#ok<UNRCH>
+%        run_usrp_tx_mex(sys_params_tx,frame_to_send); 
+%     else
+%        run_usrp_tx(sys_params_tx,frame_to_send); 
+%     end
+% end
