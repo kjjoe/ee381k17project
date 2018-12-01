@@ -1,15 +1,18 @@
 % system check over snr
-ber = zeros(40,10);
+LOOP = 5;
+snr_range = (1:0.1:30);
+ber = zeros(length(snr_range),LOOP);
 ser = ber;
 tic
 
-for loop = 1:10
+for loop = 1:LOOP
     transmitter
-    for snr = 1:40
+    aaa = 1;
+    for snr = snr_range
         receiver2
-        
-        ber(snr,loop) = ratio_ber;
-        ser(snr,loop) = ratio_ser;
+        ber(aaa,loop) = ratio_ber;
+        ser(aaa,loop) = ratio_ser;
+        aaa = aaa+1;
     end
 end
 toc

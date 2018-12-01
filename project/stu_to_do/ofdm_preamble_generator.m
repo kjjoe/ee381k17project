@@ -61,17 +61,35 @@ function sys_params_base = ofdm_preamble_generator(sys_params_base)
         sys_params_base.OFDM_preamble_length = length(totalw);
         
         % cfo estimation
-        t1 = training1();
-        m = 0 : N_carriers/2 - 1;
-        n = 0:63;
-        
-        ww = exp(1j*2*pi*n'*m/(N_carriers/2))* t1(2*m+1)/N_carriers;
-        
-        sys_params_base.OFDM_CFO = [ww(end-L_P+1:end); ww];
-        
+%         t1 = training1();
+%         m = 0 : N_carriers/2 - 1;
+%         n = 0:63;
+%         
+%         ww = exp(1j*2*pi*n'*m/(N_carriers/2))* t1(2*m+1)/N_carriers;
+%         
+%         sys_params_base.OFDM_CFO = [ww(end-L_P+1:end); ww];
+        STF = wlan802_11a_STF_generator();
+        sys_params_base.OFDM_CFO = [STF; preamble] ;
+
         sys_params_base.cfo_start = sys_params_base.OFDM_preamble_length+1;
         sys_params_base.data_start = sys_params_base.cfo_start + length(sys_params_base.OFDM_CFO);
         
+end
+
+function STF = wlan802_11a_STF_generator()
+    L_CP = 16; % Fixed CP length 
+    N_carriers = 64; % Fixed Number of carriers
+    % In the 20 MHz transmission mode: the legacy short training OFDM symbol 
+    % are assigned to subcarriers -24, -20, -16, -12, -8, -4, 4, 8, 12, 16, 20, 24.
+    % Check http://rfmw.em.keysight.com/wireless/helpfiles/n7617a/n7617a.htm#legacy_short_training_field.htm
+    subcarriers_stf = [4:4:24 [-24:4:-4]+64]; % This index number start from 0, it is from 0 to 63
+    
+    % code here
+    seq = [ -1-1j; -1-1j; 1+1j; 1+1j; 1+1j; 1+1j; 1+1j; -1-1j; 1+1j; -1-1j; -1-1j; 1+1j];
+    tmp = zeros(N_carriers,1);
+    tmp(subcarriers_stf+1) = seq;
+    stf_symbol = ifft(tmp,N_carriers)*sqrt(64);
+    STF = repmat(stf_symbol(1:L_CP),10,1);
 end
 
 

@@ -9,6 +9,8 @@ addpath(genpath([pwd '/Libs']));
 %ber = ser;
 %etotal = ser;
 %for snr = 1:1
+
+%snr = 15;
 %% Simulation parameters
 M = 4;
 payload_size_in_ofdm_symbols = 10;
@@ -109,17 +111,49 @@ downsampled = downsample(rx_sig_all,sys_params_rx.downsampling_factor);
 %% cfo estimation
 
 if sys_params_rx.sim_CF
-    y_cfo = downsampled((cfo_start+L_CP):(cfo_start+L_CP+N-1),:);
-    n = (0:(N/2 - 1))';
-    e_frac = angle(sum(sum(conj(y_cfo(n+1+N/2,:)).*  y_cfo(n+1,:))))/pi/N;
-    %e_frac = -4e-5*length(downsampled)/64;
-    n1 = (0:length(downsampled)-1)';
-    cfo_done = downsampled.*exp(1j*2*pi*e_frac*n1);
-%    
+%     y_cfo = downsampled((cfo_start+L_CP):(cfo_start+L_CP+N-1),:);
+%     n = (0:(N/2 - 1))';
+%     e_frac = angle(sum(sum(conj(y_cfo(n+1+N/2,:)).*  y_cfo(n+1,:))))/pi/N;
+%     %e_frac = -4e-5*length(downsampled)/64;
+%     n1 = (0:length(downsampled)-1)';
+%     cfo_done = downsampled.*exp(1j*2*pi*e_frac*n1);
+% %    
 % figure(1)
 %     hold on
-% scatter(real(d(1:32,1)),imag(d(1:32,1)))
-% scatter(real(d(33:64,1)),imag(d(33:64,1)))
+% % scatter(real(y_cfo(1:32,1)),imag(y_cfo(1:32,1)))
+% % scatter(real(y_cfo(33:64,1)),imag(y_cfo(33:64,1)))
+% for p = 1:32
+%     tmp = [y_cfo(p,1); y_cfo(p+32,1)];
+%     plot(real(tmp),imag(tmp),'o-');
+% end
+    
+    input_data_r1 = downsampled(cfo_start:data_start-1,1);
+    input_data_r2 = downsampled(cfo_start:data_start-1,2);
+    frame_id = 1;
+    Lc = 16;
+    m = 1:(2*M+1);
+    n = (1:Lc)'; % but usually 0 to Lc-1    
+    epsilon1 = angle(sum(sum(conj(input_data_r1(n + (m-1)*Lc)).* input_data_r1(n + m*Lc))))/(2*pi*Lc);
+    epsilon2 = angle(sum(sum(conj(input_data_r2(n + (m-1)*Lc)).* input_data_r2(n + m*Lc))))/(2*pi*Lc);
+    % Phase offset in comparison with the first symbol of the first frame
+%     phase_offset = exp(1j*2*pi*epsilon*(sys_params_rx.frame_size-1)*(frame_id-1)); % phase offset with respect to the first symbol of the first frame
+%     freq_synced_data = input_data .* conj(phase_offset); % Compensate the phase offset
+    freq_offset1 = epsilon1/2e-6;
+    freq_offset2 = epsilon2/2e-6;
+    % Compensate the CFO
+    % Code here
+    n1 = (0:length(downsampled)-1)';
+    %efrac = (epsilon1 + epsilon2)/2;
+    %cfo_done = downsampled.*exp(-1j*2*pi*efrac*n1);
+
+    input1 = input_data_r1(177:end);
+    input2 = input_data_r2(177:end);
+
+    n = 1:N;
+    ep1 = (1/(2*pi*N))*angle(sum(conj(input1(n)).*input1(n+N)));
+    ep2 = (1/(2*pi*N))*angle(sum(conj(input2(n)).*input2(n+N)));
+    final_e = mean([epsilon1, epsilon2,ep1,ep2]);
+    cfo_done = downsampled.*exp(-1j*2*pi*final_e*n1);
 else
     cfo_done = downsampled;
 end
@@ -251,7 +285,7 @@ output_bit(circshift(real(up) < 0 , 1)) = 1;
 
 [SER,ratio_ser] = symerr(detect,qam_modulated_data);
 [BER,ratio_ber] = biterr(output_bit,bits_sent);
-fprintf('SNR: %d\nSER: %0.4f\nBER: %0.4f\n',channel_snr_dB,ratio_ser,ratio_ber)
+fprintf('SNR: %2.2f\nSER: %0.4f\nBER: %0.4f\n',channel_snr_dB,ratio_ser,ratio_ber)
 %ser(snr) = ratio_ser;
 %ber(snr) = ratio_ber;
 %etotal(snr) = e_frac;
