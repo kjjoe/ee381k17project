@@ -74,7 +74,7 @@ sys_params_base = init_sdr('usrp_center_frequency', 2.40e9,...
                            'N_rx',N_rx, ...    % number of receiver antennas
                            'sim_CF', false, ... % simulate carrier freq offset 
                            'sim_delay',true, ...
-                           'channel_delay_samples',128);  % simulate delay
+                           'channel_delay_samples',);  % simulate delay
                        
 % System parameters for the receiver       
 sys_params_rx = init_sdr_rx(sys_params_base,...
@@ -107,8 +107,7 @@ for r = 1:N_rx
 end
 
 
-%% Symbol sync and downsample
-
+% downsample
 downsampled = downsample(rx_sig_all,sys_params_rx.downsampling_factor);
 
 
@@ -116,23 +115,24 @@ downsampled = downsample(rx_sig_all,sys_params_rx.downsampling_factor);
 
 if sys_params_rx.sim_delay
     % stage 1
-    m = 1:(2*M+1);
-    n = (1:Lc)'; % but usually 0 to Lc-1
-    R = zeros(frame_size,1);
-    frame_sync = downsampled(cfo_start+Lc:end,1); 
-    for delta = 0:frame_size
-        numer = sum(sum(abs(conj(frame_sync(n + (m-1)*Lc + delta)).* frame_sync(n + m*Lc + delta))));
-        denom = sum(sum(abs(frame_sync(n + (m-1)*Lc + delta)).^2));
-        R(delta+1) = numer/denom;
-    end
+%     m = 1:(2*M+1);
+%     n = (1:Lc)'; % but usually 0 to Lc-1
+%     R = zeros(frame_size,1);
+%     frame_sync = downsampled(cfo_start+Lc:end,1); 
+%     for delta = 0:700
+%         numer = sum(sum(abs(conj(frame_sync(n + (m-1)*Lc + delta)).* frame_sync(n + m*Lc + delta))));
+%         denom = sum(sum(abs(frame_sync(n + (m-1)*Lc + delta)).^2));
+%         R(delta+1) = numer/denom;
+%     end
 
-    [~,offset1] = max(R);
-    plot(R)
     % stage 2
-    freq_synced_input_data = downsampled(cfo_start+160:end,2); 
+    
+    
+    freq_synced_input_data = downsampled(cfo_start+160:end,1); 
     n = 1:(Lc+N);
-    R = zeros(frame_size,1);
-    for d = 0:frame_size
+    D = length(freq_synced_input_data) - frame_size;
+    R = zeros(D,1);
+    for d = 0:D
         num = abs(sum(freq_synced_input_data(n+N+d).*conj(freq_synced_input_data(n+d))))^2;
         den1 = sqrt(sum(abs(freq_synced_input_data(n+N+d)).^2));
         den2 = sqrt(sum(abs(freq_synced_input_data(n+d)).^2));
@@ -140,12 +140,10 @@ if sys_params_rx.sim_delay
     end
 
 
-    [~,offset2] = max(R);
+    [~,offset] = max(R);
+    frame_offset = offset - 1;
     
-   % offset2 = 3;
-    frame_offset = offset2 - 1;
-    
-    frame_synced_data = downsampled(offset2:offset2+sys_params_rx.frame_size-1,:);
+    frame_synced_data = downsampled(offset:offset+sys_params_rx.frame_size-1,:);
 else
     frame_synced_data = downsampled;
 end

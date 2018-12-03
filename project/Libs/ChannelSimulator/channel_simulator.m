@@ -19,6 +19,7 @@ function rx_sig_all = channel_simulator(frame_to_send,sys_params_rx,h)
     
     
     channel_delay = sys_params_rx.channel_delay;
+    delay_in_samples = sys_params_rx.channel_delay_samples;
     channel_cfo = sys_params_rx.channel_cfo;
     channel_snr_dB = sys_params_rx.channel_snr_dB;
     Ts = sys_params_rx.T_sample;
@@ -40,8 +41,8 @@ function rx_sig_all = channel_simulator(frame_to_send,sys_params_rx,h)
     % Add delay   %%%%% REMOVE FOR NOW %%%%%
     
     if sys_params_rx.sim_delay
-        delay_in_samples = round(channel_delay/Ts);  
-        delay_in_samples = 30;
+        %delay_in_samples = round(channel_delay/Ts);  
+        %delay_in_samples = 35;
         rx_sig_all = circshift(rx_sig_all, delay_in_samples);
     end
     
