@@ -10,7 +10,7 @@ addpath(genpath([pwd '/Libs']));
 %etotal = ser;
 %for snr = 1:1
 
-%snr = 15;
+snr = 1000;
 %% Simulation parameters
 M = 4;
 payload_size_in_ofdm_symbols = 10;
@@ -72,8 +72,8 @@ sys_params_base = init_sdr('usrp_center_frequency', 2.40e9,...
                            'channel_snr_dB', channel_snr_dB,...  % Create the common system parameters between transmitter and receiver
                            'N_tx',N_tx, ...  % number of transmitter antennas
                            'N_rx',N_rx, ...    % number of receiver antennas
-                           'sim_CF', true, ... % simulate carrier freq offset 
-                           'sim_delay',false);  % simulate delay
+                           'sim_CF', false, ... % simulate carrier freq offset 
+                           'sim_delay',true);  % simulate delay
                        
 % System parameters for the receiver       
 sys_params_rx = init_sdr_rx(sys_params_base,...
@@ -87,12 +87,13 @@ sys_params_rx = init_sdr_rx(sys_params_base,...
                            'correct_cfo', true, ... % Whether correct the cfo
                            'use_moose_frame_sync', false, ... % Whether use moose algorithm
                            'correct_common_gain_phase_error', true, ... % Whether correct common gain and phase error
-                           'total_frames_to_receive', 1); % The total number of frames to receive
+                           'total_frames_to_receive', 2); % The total number of frames to receive
 
 bps = length(sys_params_rx.data_carriers_index);                       
 cfo_start = sys_params_rx.cfo_start;
 data_start = sys_params_rx.data_start;
-
+Lc = 16;
+frame_size = sys_params_rx.frame_size;
 %% mimo channel simulation
 %load('frame_to_send.mat');
 
@@ -107,6 +108,44 @@ end
 
 % downsample
 downsampled = downsample(rx_sig_all,sys_params_rx.downsampling_factor);
+
+
+%% frame sync
+
+if sys_params_rx.sim_delay
+    % stage 1
+%     m = 1:(2*M+1);
+%     n = (1:Lc)'; % but usually 0 to Lc-1
+%     R = zeros(frame_size,1);
+%     frame_sync = downsampled(cfo_start+Lc:end,1); 
+%     for delta = 0:700
+%         numer = sum(sum(abs(conj(frame_sync(n + (m-1)*Lc + delta)).* frame_sync(n + m*Lc + delta))));
+%         denom = sum(sum(abs(frame_sync(n + (m-1)*Lc + delta)).^2));
+%         R(delta+1) = numer/denom;
+%     end
+
+    % stage 2
+    
+    
+    freq_synced_input_data = downsampled(cfo_start+160:end,1); 
+    n = 1:(Lc+N);
+    D = length(freq_synced_input_data) - frame_size;
+    R = zeros(D,1);
+    for d = 0:D
+        num = abs(sum(freq_synced_input_data(n+N+d).*conj(freq_synced_input_data(n+d))))^2;
+        den1 = sqrt(sum(abs(freq_synced_input_data(n+N+d)).^2));
+        den2 = sqrt(sum(abs(freq_synced_input_data(n+d)).^2));
+        R(d+1) = num/(den1*den2);
+    end
+
+
+    [~,offset] = max(R);
+    frame_offset = offset - 1;
+    frame_synced_data = downsampled(offset:offset+sys_params_rx.frame_size-1,:);
+else
+    frame_synced_data = downsampled;
+end
+
 
 %% cfo estimation
 
@@ -127,10 +166,10 @@ if sys_params_rx.sim_CF
 %     plot(real(tmp),imag(tmp),'o-');
 % end
     
-    input_data_r1 = downsampled(cfo_start:data_start-1,1);
-    input_data_r2 = downsampled(cfo_start:data_start-1,2);
+    input_data_r1 = frame_synced_data(cfo_start:data_start-1,1);
+    input_data_r2 = frame_synced_data(cfo_start:data_start-1,2);
     frame_id = 1;
-    Lc = 16;
+    
     m = 1:(2*M+1);
     n = (1:Lc)'; % but usually 0 to Lc-1    
     epsilon1 = angle(sum(sum(conj(input_data_r1(n + (m-1)*Lc)).* input_data_r1(n + m*Lc))))/(2*pi*Lc);
@@ -157,6 +196,7 @@ if sys_params_rx.sim_CF
 else
     cfo_done = downsampled;
 end
+
 
 %% Channel estimation
 tmp = cfo_done(L_CP+1:L_CP+N,:);
@@ -209,7 +249,7 @@ qam2(2,1,:) = repmat(qam,4,1);
 
 %% detection ML
 % need to change data indices 
-Ydata = cfo_done(data_start:end,:); % no training
+Ydata = cfo_done(data_start:sys_params_rx.frame_size,:); % no training
 Ydata = reshape(Ydata,[],10); % blocks in time  
 Ydata = Ydata(L_CP+1:end,:); % no prefix in time
 Ydata = fft(Ydata,N,1)/sqrt(N); % data in freq domain                 

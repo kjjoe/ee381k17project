@@ -73,6 +73,7 @@ function sys_params_base = ofdm_preamble_generator(sys_params_base)
 
         sys_params_base.cfo_start = sys_params_base.OFDM_preamble_length+1;
         sys_params_base.data_start = sys_params_base.cfo_start + length(sys_params_base.OFDM_CFO);
+        sys_params_base.OFDM_cfo = length(sys_params_base.OFDM_CFO);
         
 end
 

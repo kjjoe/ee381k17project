@@ -41,6 +41,7 @@ function rx_sig_all = channel_simulator(frame_to_send,sys_params_rx,h)
     
     if sys_params_rx.sim_delay
         delay_in_samples = round(channel_delay/Ts);  
+        delay_in_samples = 30;
         rx_sig_all = circshift(rx_sig_all, delay_in_samples);
     end
     
