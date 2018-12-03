@@ -46,13 +46,7 @@ ofdm_payload_symbols = OFDM_mod(qam_modulated_data, sys_params_tx);
 multiplex = reshape(ofdm_payload_symbols,[],sys_params_tx.N_tx);
 
 % Step 5: Add training data
-preambles = zeros(sys_params_tx.OFDM_preamble_length, sys_params_tx.N_tx);
-for antenna = 1:sys_params_tx.N_tx
-    preambles(:,antenna) = sys_params_tx.OFDM_preamble{antenna};
-end
-
-cfo_data = [sys_params_tx.OFDM_CFO, sys_params_tx.OFDM_CFO];
-framed_data = [preambles; cfo_data; multiplex];
+framed_data = [sys_params_tx.OFDM_preamble; multiplex];
 
 % Step 6: Pulse Shaping
 frame_to_send = cell(sys_params_tx.N_tx,1);

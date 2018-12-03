@@ -60,19 +60,16 @@ function sys_params_base = ofdm_preamble_generator(sys_params_base)
             sys_params_base.OFDM_CE{loop} = totalw;
         end
         sys_params_base.single_OFDM_training_seq_time_domain_length = N_carriers; 
+        sys_params_base.OFDM_preamble_length = length(totalw);
         
         
         %%%% CFO ESTIMATION FRAME/FREQ SYNC %%%%%
         STF = wlan802_11a_STF_generator();
         sys_params_base.OFDM_CFO = [STF; preamble] ;
 
-        sys_params_base.STF_start = length(totalw)+1;
-        sys_params_base.CEF_start = sys_params_base.STF_start + length(STF);
-         
-        
-        sys_params_base.OFDM_preamble = [sys_params_base.OFDM_CE{1}, sys_params_base.OFDM_CE{2}; sys_params_base.OFDM_CFO,sys_params_base.OFDM_CFO];
-        sys_params_base.OFDM_preamble_length = length(sys_params_base.OFDM_preamble);
-        sys_params_base.data_start = length(sys_params_base.OFDM_preamble)+1;
+        sys_params_base.cfo_start = sys_params_base.OFDM_preamble_length+1;
+        sys_params_base.data_start = sys_params_base.cfo_start + length(sys_params_base.OFDM_CFO);
+        sys_params_base.OFDM_cfo = length(sys_params_base.OFDM_CFO);
         
 end
 
