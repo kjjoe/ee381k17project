@@ -10,7 +10,7 @@ addpath(genpath([pwd '/Libs']));
 %etotal = ser;
 %for snr = 1:1
 
-%snr = 15;
+%snr = 50;
 %% Simulation parameters
 M = 4;
 payload_size_in_ofdm_symbols = 10;
@@ -24,9 +24,9 @@ channel_L = 4;
 channel_tap = zeros(N_rx,N_tx,channel_L);  %h_(receiver)(transmitter)
 
 channel_tap(1,1,:) = [1+1j, -1/2+1j/3, 1/4j     ,1/6].'; %h11
-channel_tap(2,1,:) = [1+1j, -1/2+1j/3, 1/4j     ,1/6]';  %h21
-channel_tap(1,2,:) = [1   , -1j/2    , 1/4+1j/4 ,1/8].';       %h12
-channel_tap(2,2,:) = [1   , -1j/2    , 1/4+1j/4 ,1/8]';        %h22
+channel_tap(2,1,:) = [1+1j, -1/3+1j/3, 1/5j     ,1/8]';  %h21
+channel_tap(1,2,:) = [1   , -1j/2    , 1/4+1j/4 ,1/10].';       %h12
+channel_tap(2,2,:) = [1   , 2/5-1j/2 , -1j/5    ,1/15]';        %h22
 
 % channel_tap(1,1,:) = [1   ; 1/2 ];
 % channel_tap(2,1,:) = [1+1j; 1j/2];
@@ -48,7 +48,8 @@ channel_tap(2,2,:) = [1   , -1j/2    , 1/4+1j/4 ,1/8]';        %h22
 
 channel_snr_dB = snr;
 cyclic_prefix = 0;
-channel_delay = 0;
+channel_delay = round(rand*100);
+%channel_delay = 15;
 %%% basic parameters %%%
 
 N = 64;
@@ -74,7 +75,7 @@ sys_params_base = init_sdr('usrp_center_frequency', 2.40e9,...
                            'N_rx',N_rx, ...    % number of receiver antennas
                            'sim_CF', true, ... % simulate carrier freq offset 
                            'sim_delay',true, ...
-                           'channel_delay_samples',15);  % simulate delay
+                           'channel_delay_samples',channel_delay);  % simulate delay
                        
 % System parameters for the receiver       
 sys_params_rx = init_sdr_rx(sys_params_base,...
@@ -121,7 +122,7 @@ downsampled = [downsample(symbol_synced_data1,sys_params_rx.downsampling_factor)
                downsample(symbol_synced_data2,sys_params_rx.downsampling_factor)];
 
 
-%% frame sync
+%% frame sync stage 1
 
 if sys_params_rx.sim_delay
     % stage 1
@@ -129,56 +130,23 @@ if sys_params_rx.sim_delay
     n = (1:Lc)'; % but usually 0 to Lc-1
     R = zeros(frame_size,1);
     frame_sync = downsampled(cfo_start+Lc:end,1); 
-    for delta = 0:frame_size
+    for delta = 0:frame_size-1
         numer = sum(sum(abs(conj(frame_sync(n + (m-1)*Lc + delta)).* frame_sync(n + m*Lc + delta))));
         denom = sum(sum(abs(frame_sync(n + (m-1)*Lc + delta)).^2));
         R(delta+1) = numer/denom;
     end
 
     [~,offset1] = max(R);
-    % stage 2
-    freq_synced_input_data = downsampled(cfo_start+160:end,2); 
-    n = 1:(Lc+N);
-    R = zeros(frame_size,1);
-    for d = 0:frame_size
-        num = abs(sum(freq_synced_input_data(n+N+d).*conj(freq_synced_input_data(n+d))))^2;
-        den1 = sqrt(sum(abs(freq_synced_input_data(n+N+d)).^2));
-        den2 = sqrt(sum(abs(freq_synced_input_data(n+d)).^2));
-        R(d+1) = num/(den1*den2);
-    end
-
-
-    [~,offset2] = max(R);
-    
-   % offset2 = 3;
-    frame_offset = offset2 - 1;
-    
-    frame_synced_data = downsampled(offset2:offset2+sys_params_rx.frame_size-1,:);
+    frame_synced_data_stage1 = downsampled(offset1:offset1+sys_params_rx.frame_size-1,:);
 else
-    frame_synced_data = downsampled;
+    frame_synced_data_stage1 = downsampled;
+    offset1 = 0;
 end
 
-%% cfo estimation
-
+%% cfo estimation stage 1
 if sys_params_rx.sim_CF
-%     y_cfo = downsampled((cfo_start+L_CP):(cfo_start+L_CP+N-1),:);
-%     n = (0:(N/2 - 1))';
-%     e_frac = angle(sum(sum(conj(y_cfo(n+1+N/2,:)).*  y_cfo(n+1,:))))/pi/N;
-%     %e_frac = -4e-5*length(downsampled)/64;
-%     n1 = (0:length(downsampled)-1)';
-%     cfo_done = downsampled.*exp(1j*2*pi*e_frac*n1);
-% %    
-% figure(1)
-%     hold on
-% % scatter(real(y_cfo(1:32,1)),imag(y_cfo(1:32,1)))
-% % scatter(real(y_cfo(33:64,1)),imag(y_cfo(33:64,1)))
-% for p = 1:32
-%     tmp = [y_cfo(p,1); y_cfo(p+32,1)];
-%     plot(real(tmp),imag(tmp),'o-');
-% end
-    
-    input_data_r1 = frame_synced_data(cfo_start:data_start-1,1);
-    input_data_r2 = frame_synced_data(cfo_start:data_start-1,2);
+    input_data_r1 = frame_synced_data_stage1((cfo_start:data_start-1),1);
+    input_data_r2 = frame_synced_data_stage1((cfo_start:data_start-1),2);
     frame_id = 1;
     
     m = 1:(2*M+1);
@@ -193,8 +161,44 @@ if sys_params_rx.sim_CF
     % Compensate the CFO
     % Code here
     n1 = (0:length(downsampled)-1)';
-    %efrac = (epsilon1 + epsilon2)/2;
-    %cfo_done = downsampled.*exp(-1j*2*pi*efrac*n1);
+    
+    final_e = mean([epsilon1, epsilon2]);
+    cfo_stage1 = downsampled.*exp(-1j*2*pi*final_e*n1);
+else
+    cfo_stage1 = downsampled;
+end
+
+%% frame sync stage 2
+
+if sys_params_rx.sim_delay
+    % stage 2
+    freq_synced_input_data = cfo_stage1(cfo_start+160:end,2); 
+    n = 1:(Lc+N);
+    R = zeros(frame_size,1);
+    for d = 0:frame_size-1
+        num = abs(sum(freq_synced_input_data(n+N+d).*conj(freq_synced_input_data(n+d))))^2;
+        den1 = sqrt(sum(abs(freq_synced_input_data(n+N+d)).^2));
+        den2 = sqrt(sum(abs(freq_synced_input_data(n+d)).^2));
+        R(d+1) = num/(den1*den2);
+    end
+
+
+    [~,offset2] = max(R);
+    
+    if offset2 > 1 % why does this improve my SER a lot?
+        offset2 = offset2 - 1;
+    end
+    frame_offset = offset2 - 1;
+    frame_synced_data = cfo_stage1(offset2:offset2+sys_params_rx.frame_size-1,:);
+else
+    frame_synced_data = downsampled;
+end
+
+%% cfo estimation stage 2
+
+if sys_params_rx.sim_CF
+    input_data_r1 = frame_synced_data(cfo_start:data_start-1,1);
+    input_data_r2 = frame_synced_data(cfo_start:data_start-1,2);
 
     input1 = input_data_r1(177:end);
     input2 = input_data_r2(177:end);
@@ -202,8 +206,9 @@ if sys_params_rx.sim_CF
     n = 1:N;
     ep1 = (1/(2*pi*N))*angle(sum(conj(input1(n)).*input1(n+N)));
     ep2 = (1/(2*pi*N))*angle(sum(conj(input2(n)).*input2(n+N)));
-    final_e = mean([epsilon1, epsilon2,ep1,ep2]);
-    cfo_done = downsampled.*exp(-1j*2*pi*final_e*n1);
+    final_e = mean([ep1,ep2]);
+    n1 = (0:length(frame_synced_data)-1)';
+    cfo_done = frame_synced_data.*exp(-1j*2*pi*final_e*n1);
 else
     cfo_done = frame_synced_data;
 end
