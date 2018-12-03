@@ -10,7 +10,7 @@ addpath(genpath([pwd '/Libs']));
 %etotal = ser;
 %for snr = 1:1
 
-snr = 1000;
+%snr = 15;
 %% Simulation parameters
 M = 4;
 payload_size_in_ofdm_symbols = 10;
@@ -72,9 +72,9 @@ sys_params_base = init_sdr('usrp_center_frequency', 2.40e9,...
                            'channel_snr_dB', channel_snr_dB,...  % Create the common system parameters between transmitter and receiver
                            'N_tx',N_tx, ...  % number of transmitter antennas
                            'N_rx',N_rx, ...    % number of receiver antennas
-                           'sim_CF', false, ... % simulate carrier freq offset 
+                           'sim_CF', true, ... % simulate carrier freq offset 
                            'sim_delay',true, ...
-                           'channel_delay_samples',128);  % simulate delay
+                           'channel_delay_samples',15);  % simulate delay
                        
 % System parameters for the receiver       
 sys_params_rx = init_sdr_rx(sys_params_base,...
@@ -108,8 +108,17 @@ end
 
 
 %% Symbol sync and downsample
-
-downsampled = downsample(rx_sig_all,sys_params_rx.downsampling_factor);
+  % Matched filtering
+    rx_sig_temp1 = rx_sig_all(:,1);
+    rx_sig_temp2 = rx_sig_all(:,2);
+    filtered_data1 = matched_filtering(rx_sig_temp1, sys_params_rx);
+    filtered_data2 = matched_filtering(rx_sig_temp2, sys_params_rx);
+    
+    % Symbol Synchronization
+    [symbol_synced_data1, symbol_offset1] = symbol_sync_max_energy(filtered_data1, sys_params_rx);
+    [symbol_synced_data2, symbol_offset2] = symbol_sync_max_energy(filtered_data2, sys_params_rx);
+downsampled = [downsample(symbol_synced_data1,sys_params_rx.downsampling_factor), ...
+               downsample(symbol_synced_data2,sys_params_rx.downsampling_factor)];
 
 
 %% frame sync
@@ -127,7 +136,6 @@ if sys_params_rx.sim_delay
     end
 
     [~,offset1] = max(R);
-    plot(R)
     % stage 2
     freq_synced_input_data = downsampled(cfo_start+160:end,2); 
     n = 1:(Lc+N);
