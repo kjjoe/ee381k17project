@@ -10,7 +10,7 @@ addpath(genpath([pwd '/Libs']));
 %etotal = ser;
 %for snr = 1:1
 
-snr = 15;
+snr = 50;
 %% Simulation parameters
 M = 4;
 payload_size_in_ofdm_symbols = 10;
@@ -172,7 +172,7 @@ end
 
 if sys_params_rx.sim_delay
     % stage 2
-    freq_synced_input_data = cfo_stage1(cfo_start+160:end,1); 
+    freq_synced_input_data = cfo_stage1(cfo_start+161:end,1); 
     n = 1:(Lc+N);
     R = zeros(frame_size,1);
     for d = 0:frame_size-1
@@ -185,9 +185,9 @@ if sys_params_rx.sim_delay
 
     [~,offset2] = max(R);
     
-    if offset2 > 1 % why does this improve my SER a lot?
-        offset2 = offset2 - 1;
-    end
+%     if offset2 > 1 % why does this improve my SER a lot?
+%         offset2 = offset2 - 1;
+%     end
     frame_offset = offset2 - 1;
     frame_synced_data = cfo_stage1(offset2:offset2+sys_params_rx.frame_size-1,:);
 else

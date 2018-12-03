@@ -1,5 +1,5 @@
 % system check over snr
-LOOP = 50;
+LOOP = 10;
 snr_range = (1:1:30);
 ber = zeros(length(snr_range),LOOP);
 ser = ber;
