@@ -10,7 +10,7 @@ M = 4;
 payload_size_in_ofdm_symbols = 10;
 N_tx = 2;
 N_rx = 2;
-snr = 15;
+% snr = 1; %%% be sure to comment before running systemcheck.m
 
 %%% Channel %%%
 channel_order = 3; % separate than number of taps
@@ -31,7 +31,7 @@ channel_tap(2,2,:) = [1   , 2/5-1j/2 , -1j/5    ,1/15]';        %h22
 channel_snr_dB = snr;
 cyclic_prefix = 0;
 channel_delay = round(rand*100);
-channel_delay = 45;
+%channel_delay = 45;
 %%% basic parameters %%%
 
 N = 64;
@@ -71,8 +71,13 @@ sys_params_rx = init_sdr_rx(sys_params_base,...
                            'correct_cfo', true, ... % Whether correct the cfo
                            'use_moose_frame_sync', false, ... % Whether use moose algorithm
                            'correct_common_gain_phase_error', true, ... % Whether correct common gain and phase error
-                           'total_frames_to_receive', 2); % The total number of frames to receive
+                           'total_frames_to_receive', 10); % The total number of frames to receive
 
+                       
+SER = zeros(sys_params_rx.total_frames_to_receive-2,1);
+ser_ratio = SER;
+BER = SER;
+ber_ratio = SER;
 %% mimo channel simulation
 %load('frame_to_send.mat');
 rx_sig_all = zeros(length(frame_to_send{1})* sys_params_rx.total_frames_to_receive,N_rx);
@@ -94,21 +99,31 @@ filtered_data2 = matched_filtering(rx_sig_all(:,2), sys_params_rx);
 downsampled = [downsample(symbol_synced_data1,sys_params_rx.downsampling_factor), ...
            downsample(symbol_synced_data2,sys_params_rx.downsampling_factor)];
 
+frame_size = sys_params_rx.frame_size;
+for frame_id = 1:sys_params_rx.total_frames_to_receive-2
+    
+    tmp = downsampled((frame_id-1)*frame_size+1:(frame_id+1)*frame_size,:);
+    
+    %%% Joint Frame and Frequency Sync %%%
+    signal_out = joint_sync(tmp,sys_params_rx);
 
-%% Joint Frame and Frequency Sync
-signal_out = joint_sync(downsampled,sys_params_rx);
+    %%% Channel estimation %%%
+    [H,G,h_est] = channel_estimation(signal_out,sys_params_rx);
 
-%% Channel estimation
-[H,G,h_est] = channel_estimation(signal_out,sys_params_rx);
+    %%% Detect Symbols %%%
+    symbol_out = detect_symbol(signal_out,G,sys_params_rx);
 
-%% detection ML
-symbol_out = detect_symbol(signal_out,G,sys_params_rx);
+    %%% OFDM demodulation %%%
+    output_bit = detect_bits(symbol_out);
 
-%% ofdm demodulation
-output_bit = detect_bits(symbol_out);
+    %%% Output Calculations %%%
+    [s1,s2] = symerr(reshape(symbol_out,[],1),qam_modulated_data);
+    [b1,b2] = biterr(output_bit,bits_sent);
+    
+    SER(frame_id) = s1;
+    ser_ratio(frame_id) = s2;
+    BER(frame_id) = b1;
+    ber_ratio(frame_id) = b2;
+end
 
-%% Output Calculations
-[SER,ratio_ser] = symerr(reshape(symbol_out,[],1),qam_modulated_data);
-[BER,ratio_ber] = biterr(output_bit,bits_sent);
-fprintf('SNR: %2.2f\nSER: %0.4f\nBER: %0.4f\n',channel_snr_dB,ratio_ser,ratio_ber)
-
+fprintf('SNR: %2.2f\nSER: %0.4f\nBER: %0.4f\n',channel_snr_dB,mean(ser_ratio),mean(ber_ratio))
