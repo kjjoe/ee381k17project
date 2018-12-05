@@ -10,7 +10,7 @@ M = 4;
 payload_size_in_ofdm_symbols = 10;
 N_tx = 2;
 N_rx = 2;
-% snr = 1; %%% be sure to comment before running systemcheck.m
+ %snr = 10; %%% be sure to comment before running systemcheck.m
 
 %%% Channel %%%
 channel_order = 3; % separate than number of taps

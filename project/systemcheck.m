@@ -1,6 +1,6 @@
 % system check over snr
-LOOP = 100;
-snr_range = (1:0.2:30);
+LOOP = 50;
+snr_range = (1:1:30);
 ber = zeros(length(snr_range),LOOP);
 ser = ber;
 tic

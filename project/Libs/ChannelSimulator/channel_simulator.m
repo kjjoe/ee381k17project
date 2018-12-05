@@ -16,7 +16,7 @@
 function rx_sig_all = channel_simulator(frame_to_send,sys_params_rx,h)
     % Fetch parameters of the simulated channel
     channel_tap = reshape(sys_params_rx.channel_tap(h(1),h(2),:),[],1); % multiple channel versions
-    
+    channel_tap = upsample(channel_tap,10);
     
     channel_delay = sys_params_rx.channel_delay;
     delay_in_samples = sys_params_rx.channel_delay_samples;
