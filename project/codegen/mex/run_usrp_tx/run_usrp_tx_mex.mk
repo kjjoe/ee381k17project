@@ -57,8 +57,8 @@ SYS_INCLUDE = $(ML_INCLUDES)
 
 # Additional includes
 
-SYS_INCLUDE += -I "/Users/kj23458/Dropbox/UT\ Austin/EE\ 381K/lab9/Lab9_stu/codegen/mex/run_usrp_tx"
-SYS_INCLUDE += -I "/Users/kj23458/Dropbox/UT\ Austin/EE\ 381K/lab9/Lab9_stu"
+SYS_INCLUDE += -I "/Users/kj23458/Dropbox/UT\ Austin/EE\ 381K/ee381k17project/project/codegen/mex/run_usrp_tx"
+SYS_INCLUDE += -I "/Users/kj23458/Dropbox/UT\ Austin/EE\ 381K/ee381k17project/project"
 SYS_INCLUDE += -I "./interface"
 SYS_INCLUDE += -I "$(MATLAB_ROOT)/extern/include"
 SYS_INCLUDE += -I "/Users/kj23458/Documents/MATLAB/SupportPackages/R2018b/toolbox/shared/sdr/sdru/include"
@@ -117,10 +117,10 @@ CPPFLAGS = $(CXX_FLAGS) -std=c++11   $(USER_INCLUDE) $(SYS_INCLUDE)
 
 # Additional sources
 
-%.$(OBJEXT) : /Users/kj23458/Dropbox/UT\ Austin/EE\ 381K/lab9/Lab9_stu/%.c
+%.$(OBJEXT) : /Users/kj23458/Dropbox/UT\ Austin/EE\ 381K/ee381k17project/project/%.c
 	$(CC) $(CCFLAGS) "$<"
 
-%.$(OBJEXT) : /Users/kj23458/Dropbox/UT\ Austin/EE\ 381K/lab9/Lab9_stu/codegen/mex/run_usrp_tx/%.c
+%.$(OBJEXT) : /Users/kj23458/Dropbox/UT\ Austin/EE\ 381K/ee381k17project/project/codegen/mex/run_usrp_tx/%.c
 	$(CC) $(CCFLAGS) "$<"
 
 %.$(OBJEXT) : interface/%.c
@@ -128,10 +128,10 @@ CPPFLAGS = $(CXX_FLAGS) -std=c++11   $(USER_INCLUDE) $(SYS_INCLUDE)
 
 
 
-%.$(OBJEXT) : /Users/kj23458/Dropbox/UT\ Austin/EE\ 381K/lab9/Lab9_stu/%.cpp
+%.$(OBJEXT) : /Users/kj23458/Dropbox/UT\ Austin/EE\ 381K/ee381k17project/project/%.cpp
 	$(CXX) $(CPPFLAGS) "$<"
 
-%.$(OBJEXT) : /Users/kj23458/Dropbox/UT\ Austin/EE\ 381K/lab9/Lab9_stu/codegen/mex/run_usrp_tx/%.cpp
+%.$(OBJEXT) : /Users/kj23458/Dropbox/UT\ Austin/EE\ 381K/ee381k17project/project/codegen/mex/run_usrp_tx/%.cpp
 	$(CXX) $(CPPFLAGS) "$<"
 
 %.$(OBJEXT) : interface/%.cpp
@@ -139,10 +139,10 @@ CPPFLAGS = $(CXX_FLAGS) -std=c++11   $(USER_INCLUDE) $(SYS_INCLUDE)
 
 
 
-%.$(OBJEXT) : /Users/kj23458/Dropbox/UT\ Austin/EE\ 381K/lab9/Lab9_stu/%.cu
+%.$(OBJEXT) : /Users/kj23458/Dropbox/UT\ Austin/EE\ 381K/ee381k17project/project/%.cu
 	$(CC) $(CCFLAGS) "$<"
 
-%.$(OBJEXT) : /Users/kj23458/Dropbox/UT\ Austin/EE\ 381K/lab9/Lab9_stu/codegen/mex/run_usrp_tx/%.cu
+%.$(OBJEXT) : /Users/kj23458/Dropbox/UT\ Austin/EE\ 381K/ee381k17project/project/codegen/mex/run_usrp_tx/%.cu
 	$(CC) $(CCFLAGS) "$<"
 
 %.$(OBJEXT) : interface/%.cu

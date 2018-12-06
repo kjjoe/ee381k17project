@@ -2,6 +2,7 @@ _mexFunction
 _mexfilerequiredapiversion
 _emlrtMexFcnProperties
 _run_usrp_tx
+_b_error
 _drawnow
 _sdruroot
 _setupsdru

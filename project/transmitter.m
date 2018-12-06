@@ -26,7 +26,8 @@ sys_params_tx = init_sdr_tx(sys_params_base,...
                            'upsampling_factor', 10,... % Upsampling factor
                            'roll_off', 0.5,... % Rolling factor
                            'filt_spans', 6,...  % Filter span of square root raised cosine (SRRC) filters (in symbols)
-                           'downsampling_factor', 10); % Downsampling factor
+                           'downsampling_factor', 10,... % Downsampling factor
+                           'usrp_channelmapping', 1:2);
 
 %% Data generation 
 % Step 1: generate random bit for transmission
@@ -51,16 +52,16 @@ framed_data = [sys_params_tx.OFDM_preamble; multiplex];
 % Step 6: Pulse Shaping
 
 frame_to_send = [pulse_shaping(framed_data(:,1), sys_params_tx), ... 
-                 pulse_shaping(framed_data(:,2), sys_params_tx)];
+                pulse_shaping(framed_data(:,2), sys_params_tx)];
 
 % save the transmitted symbols for test with simulated channel 
-type_frame_to_send = coder.newtype('double',[length(frame_to_send) 1],'complex',true);
-%save frame_to_send frame_to_send; 
+type_frame_to_send = coder.newtype('double',[length(frame_to_send) 2],'complex',true);
+save frame_to_send frame_to_send; 
 
 %% Data transmission
 
-compile_it = true;
-use_codegen = true;
+compile_it = false;
+use_codegen = false;
 use_wireless_link = true; % true: test with real wireless link. false: test with simulated channel  
 if compile_it
     codegen('run_usrp_tx', '-args', {coder.Constant(sys_params_tx),type_frame_to_send}); %#ok<UNRCH>
