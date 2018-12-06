@@ -10,7 +10,7 @@ M = 4;
 payload_size_in_ofdm_symbols = 10;
 N_tx = 2;
 N_rx = 2;
- %snr = 10; %%% be sure to comment before running systemcheck.m
+snr = 10; %%% be sure to comment before running systemcheck.m
 
 %%% Channel %%%
 channel_order = 3; % separate than number of taps
@@ -80,10 +80,10 @@ BER = SER;
 ber_ratio = SER;
 %% mimo channel simulation
 %load('frame_to_send.mat');
-rx_sig_all = zeros(length(frame_to_send{1})* sys_params_rx.total_frames_to_receive,N_rx);
+rx_sig_all = zeros(length(frame_to_send(:,1))* sys_params_rx.total_frames_to_receive,N_rx);
 for r = 1:N_rx
     for t = 1:N_tx
-        rx_sig_all(:,r) = rx_sig_all(:,r) + channel_simulator(frame_to_send{t},sys_params_rx,[r,t]);
+        rx_sig_all(:,r) = rx_sig_all(:,r) + channel_simulator(frame_to_send(:,t),sys_params_rx,[r,t]);
     end
 end
 

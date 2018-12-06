@@ -76,7 +76,7 @@ function sys_params_base = init_sdr(varargin)
     sys_params_base.N_rx = 1; % Number of receiver antennas
     
     %% Fixed parameters (not tunable)
-    sys_params_base.usrp_platform = 'N200/N210/USRP2'; % Model name of the USRP device
+    sys_params_base.usrp_platform = 'X300'; % Model name of the USRP device
     sys_params_base.usrp_master_clock_rate = 100e6; % Master clock rate in Hz
     sys_params_base.usrp_output_data_type = 'double'; % Data type of output
     BARKER_CODE = [-1 -1 -1 +1 +1 +1 -1 +1 +1 -1 +1]'; % Barker code

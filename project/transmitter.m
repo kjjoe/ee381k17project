@@ -49,29 +49,27 @@ multiplex = reshape(ofdm_payload_symbols,[],sys_params_tx.N_tx);
 framed_data = [sys_params_tx.OFDM_preamble; multiplex];
 
 % Step 6: Pulse Shaping
-frame_to_send = cell(sys_params_tx.N_tx,1);
 
-for antenna = 1:sys_params_tx.N_tx
-    frame_to_send{antenna} = pulse_shaping(framed_data(:,antenna), sys_params_tx);
-end
+frame_to_send = [pulse_shaping(framed_data(:,1), sys_params_tx), ... 
+                 pulse_shaping(framed_data(:,2), sys_params_tx)];
 
 % save the transmitted symbols for test with simulated channel 
-%type_frame_to_send = coder.newtype('double',[length(frame_to_send) 1],'complex',true);
+type_frame_to_send = coder.newtype('double',[length(frame_to_send) 1],'complex',true);
 %save frame_to_send frame_to_send; 
 
 %% Data transmission
 
-% compile_it = false;
-% use_codegen = false;
-% use_wireless_link = false; % true: test with real wireless link. false: test with simulated channel  
-% if compile_it
-%     codegen('run_usrp_tx', '-args', {coder.Constant(sys_params_tx),type_frame_to_send}); %#ok<UNRCH>
-% end
-% if use_wireless_link
-%     if use_codegen
-%        clear run_usrp_tx_mex %#ok<UNRCH>
-%        run_usrp_tx_mex(sys_params_tx,frame_to_send); 
-%     else
-%        run_usrp_tx(sys_params_tx,frame_to_send); 
-%     end
-% end
+compile_it = true;
+use_codegen = true;
+use_wireless_link = true; % true: test with real wireless link. false: test with simulated channel  
+if compile_it
+    codegen('run_usrp_tx', '-args', {coder.Constant(sys_params_tx),type_frame_to_send}); %#ok<UNRCH>
+end
+if use_wireless_link
+    if use_codegen
+       clear run_usrp_tx_mex %#ok<UNRCH>
+       run_usrp_tx_mex(sys_params_tx,frame_to_send); 
+    else
+       run_usrp_tx(sys_params_tx,frame_to_send); 
+    end
+end
