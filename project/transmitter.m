@@ -60,9 +60,9 @@ save frame_to_send frame_to_send;
 
 %% Data transmission
 
-compile_it = false;
+compile_it = true;
 use_codegen = false;
-use_wireless_link = true; % true: test with real wireless link. false: test with simulated channel  
+use_wireless_link = false; % true: test with real wireless link. false: test with simulated channel  
 if compile_it
     codegen('run_usrp_tx', '-args', {coder.Constant(sys_params_tx),type_frame_to_send}); %#ok<UNRCH>
 end

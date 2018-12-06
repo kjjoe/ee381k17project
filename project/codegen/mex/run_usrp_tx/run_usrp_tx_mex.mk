@@ -11,6 +11,7 @@ SRC_FILES =  \
 	run_usrp_tx_terminate.c \
 	run_usrp_tx.c \
 	SDRuTransmitter.c \
+	SDRuBase.c \
 	SystemProp.c \
 	SystemCore.c \
 	error.c \

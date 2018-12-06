@@ -1,6 +1,4 @@
-START_DIR = /Users/kevinjoe/Dropbox/UT\ Austin/EE\ 381K/lab9/Lab9_stu
-
-MATLAB_ROOT = /Applications/MATLAB_R2018a.app
+MATLAB_ROOT = /Applications/MATLAB_R2018b.app
 MAKEFILE = run_usrp_rx_mex.mk
 
 include run_usrp_rx_mex.mki
@@ -13,19 +11,21 @@ SRC_FILES =  \
 	run_usrp_rx_terminate.c \
 	run_usrp_rx.c \
 	SDRuReceiver.c \
+	SDRuBase.c \
 	SystemProp.c \
 	SystemCore.c \
 	error.c \
 	checkIPAddressFormat.c \
+	error1.c \
 	deleteDriver.c \
 	mapiPrivate.c \
 	reportDrivers.c \
 	warning.c \
+	all.c \
 	checkBundledIP.c \
 	getSDRuList.c \
 	strcmp.c \
 	receiveData.c \
-	error1.c \
 	_coder_run_usrp_rx_info.c \
 	_coder_run_usrp_rx_api.c \
 	_coder_run_usrp_rx_mex.c \
@@ -36,7 +36,7 @@ MEX_FILE_NAME_WO_EXT = run_usrp_rx_mex
 MEX_FILE_NAME = $(MEX_FILE_NAME_WO_EXT).mexmaci64
 TARGET = $(MEX_FILE_NAME)
 
-BlockModules_LIBS = "/Users/kevinjoe/Documents/MATLAB/SupportPackages/R2018a/toolbox/shared/sdr/sdru/bin/maci64/libmwusrp_uhd_capi.dylib" 
+BlockModules_LIBS = "/Users/kj23458/Documents/MATLAB/SupportPackages/R2018b/toolbox/shared/sdr/sdru/bin/maci64/libmwusrp_uhd_capi.dylib" 
 SYS_LIBS = $(BlockModules_LIBS) 
 
 
@@ -62,11 +62,11 @@ SYS_INCLUDE = $(ML_INCLUDES)
 
 # Additional includes
 
-SYS_INCLUDE += -I "$(START_DIR)/codegen/mex/run_usrp_rx"
-SYS_INCLUDE += -I "$(START_DIR)"
+SYS_INCLUDE += -I "/Users/kj23458/Dropbox/UT\ Austin/EE\ 381K/ee381k17project/project/codegen/mex/run_usrp_rx"
+SYS_INCLUDE += -I "/Users/kj23458/Dropbox/UT\ Austin/EE\ 381K/ee381k17project/project"
 SYS_INCLUDE += -I "./interface"
 SYS_INCLUDE += -I "$(MATLAB_ROOT)/extern/include"
-SYS_INCLUDE += -I "/Users/kevinjoe/Documents/MATLAB/SupportPackages/R2018a/toolbox/shared/sdr/sdru/include"
+SYS_INCLUDE += -I "/Users/kj23458/Documents/MATLAB/SupportPackages/R2018b/toolbox/shared/sdr/sdru/include"
 SYS_INCLUDE += -I "."
 
 EML_LIBS = -lemlrt -lcovrt -lut -lmwmathutil 
@@ -109,9 +109,9 @@ else
   LINK_FLAGS += $(LDDEBUGFLAGS)
 endif
 LINK_FLAGS += -o $(TARGET)
-LINK_FLAGS +=  -L/Users/kevinjoe/Documents/MATLAB/SupportPackages/R2018a/toolbox/shared/sdr/sdru/bin/maci64 -Wl,-rpath,/Users/kevinjoe/Documents/MATLAB/SupportPackages/R2018a/toolbox/shared/sdr/sdru/bin/maci64 -L/Users/kevinjoe/Documents/MATLAB/SupportPackages/R2018a/toolbox/shared/sdr/sdru/bin/maci64 -Wl,-rpath,/Users/kevinjoe/Documents/MATLAB/SupportPackages/R2018a/toolbox/shared/sdr/sdru/bin/maci64
+LINK_FLAGS +=  -L/Users/kj23458/Documents/MATLAB/SupportPackages/R2018b/toolbox/shared/sdr/sdru/bin/maci64 -Wl,-rpath,/Users/kj23458/Documents/MATLAB/SupportPackages/R2018b/toolbox/shared/sdr/sdru/bin/maci64 -L/Users/kj23458/Documents/MATLAB/SupportPackages/R2018b/toolbox/shared/sdr/sdru/bin/maci64 -Wl,-rpath,/Users/kj23458/Documents/MATLAB/SupportPackages/R2018b/toolbox/shared/sdr/sdru/bin/maci64
 
-CCFLAGS = $(COMP_FLAGS)   $(USER_INCLUDE) $(SYS_INCLUDE)
+CCFLAGS = $(COMP_FLAGS) -std=c99   $(USER_INCLUDE) $(SYS_INCLUDE)
 CPPFLAGS = $(CXX_FLAGS) -std=c++11   $(USER_INCLUDE) $(SYS_INCLUDE)
 
 %.$(OBJEXT) : %.c
@@ -122,10 +122,10 @@ CPPFLAGS = $(CXX_FLAGS) -std=c++11   $(USER_INCLUDE) $(SYS_INCLUDE)
 
 # Additional sources
 
-%.$(OBJEXT) : $(START_DIR)/%.c
+%.$(OBJEXT) : /Users/kj23458/Dropbox/UT\ Austin/EE\ 381K/ee381k17project/project/%.c
 	$(CC) $(CCFLAGS) "$<"
 
-%.$(OBJEXT) : $(START_DIR)/codegen/mex/run_usrp_rx/%.c
+%.$(OBJEXT) : /Users/kj23458/Dropbox/UT\ Austin/EE\ 381K/ee381k17project/project/codegen/mex/run_usrp_rx/%.c
 	$(CC) $(CCFLAGS) "$<"
 
 %.$(OBJEXT) : interface/%.c
@@ -133,10 +133,10 @@ CPPFLAGS = $(CXX_FLAGS) -std=c++11   $(USER_INCLUDE) $(SYS_INCLUDE)
 
 
 
-%.$(OBJEXT) : $(START_DIR)/%.cpp
+%.$(OBJEXT) : /Users/kj23458/Dropbox/UT\ Austin/EE\ 381K/ee381k17project/project/%.cpp
 	$(CXX) $(CPPFLAGS) "$<"
 
-%.$(OBJEXT) : $(START_DIR)/codegen/mex/run_usrp_rx/%.cpp
+%.$(OBJEXT) : /Users/kj23458/Dropbox/UT\ Austin/EE\ 381K/ee381k17project/project/codegen/mex/run_usrp_rx/%.cpp
 	$(CXX) $(CPPFLAGS) "$<"
 
 %.$(OBJEXT) : interface/%.cpp
@@ -144,10 +144,10 @@ CPPFLAGS = $(CXX_FLAGS) -std=c++11   $(USER_INCLUDE) $(SYS_INCLUDE)
 
 
 
-%.$(OBJEXT) : $(START_DIR)/%.cu
+%.$(OBJEXT) : /Users/kj23458/Dropbox/UT\ Austin/EE\ 381K/ee381k17project/project/%.cu
 	$(CC) $(CCFLAGS) "$<"
 
-%.$(OBJEXT) : $(START_DIR)/codegen/mex/run_usrp_rx/%.cu
+%.$(OBJEXT) : /Users/kj23458/Dropbox/UT\ Austin/EE\ 381K/ee381k17project/project/codegen/mex/run_usrp_rx/%.cu
 	$(CC) $(CCFLAGS) "$<"
 
 %.$(OBJEXT) : interface/%.cu

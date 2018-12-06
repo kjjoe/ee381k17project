@@ -80,18 +80,29 @@ BER = SER;
 ber_ratio = SER;
 %% mimo channel simulation
 %load('frame_to_send.mat');
-simulate = false;
-if simulate
+
+compile_it = true;
+use_codegen = true;
+use_wireless_link = false; % true: test with real wireless link. false: test with simulated channel  
+if compile_it
+    codegen('run_usrp_rx', '-args', {coder.Constant(sys_params_rx)}); %#ok<UNRCH>
+end
+if use_wireless_link
+    if use_codegen 
+       clear run_usrp_rx_mex %#ok<UNRCH>
+       rx_sig_all = run_usrp_rx_mex(sys_params_rx); 
+    else
+       rx_sig_all = run_usrp_rx(sys_params_rx);
+    end
+else %Simulated channel (This is used for simulation instead of real wireless link test)
+    load('frame_to_send.mat');
     rx_sig_all = zeros(length(frame_to_send(:,1))* sys_params_rx.total_frames_to_receive,N_rx);
     for r = 1:N_rx
         for t = 1:N_tx
             rx_sig_all(:,r) = rx_sig_all(:,r) + channel_simulator(frame_to_send(:,t),sys_params_rx,[r,t]);
         end
     end
-else
-    rx_sig_all = run_usrp_rx(sys_params_rx);
 end
-
 %% Match Filter,Symbol sync, and downsample
 % Matched filtering
 filtered_data1 = matched_filtering(rx_sig_all(:,1), sys_params_rx);

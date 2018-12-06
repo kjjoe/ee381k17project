@@ -1,8 +1,8 @@
-MATLAB="/Applications/MATLAB_R2018a.app"
+MATLAB="/Applications/MATLAB_R2018b.app"
 Arch=maci64
 ENTRYPOINT=mexFunction
 MAPFILE=$ENTRYPOINT'.map'
-PREFDIR="/Users/kevinjoe/Library/Application Support/MathWorks/MATLAB/R2018a"
+PREFDIR="/Users/kj23458/Library/Application Support/MathWorks/MATLAB/R2018b"
 OPTSFILE_NAME="./setEnv.sh"
 . $OPTSFILE_NAME
 COMPILER=$CC
@@ -27,4 +27,4 @@ echo OMPFLAGS= >> run_usrp_rx_mex.mki
 echo OMPLINKFLAGS= >> run_usrp_rx_mex.mki
 echo "EMC_COMPILER=clang" >> run_usrp_rx_mex.mki
 echo "EMC_CONFIG=optim" >> run_usrp_rx_mex.mki
-"/Applications/MATLAB_R2018a.app/bin/maci64/gmake" -j 1 -B -f run_usrp_rx_mex.mk
+"/Applications/MATLAB_R2018b.app/bin/maci64/gmake" -j 1 -B -f run_usrp_rx_mex.mk
