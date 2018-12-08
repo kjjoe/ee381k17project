@@ -1,10 +1,5 @@
 function signal_out = joint_sync(signal_in,sys_params_rx)
-    signal_out = [jointsync1(signal_in(:,1),sys_params_rx), ...
-                  jointsync1(signal_in(:,2),sys_params_rx)];
-end
-
-%%% single side only
-function signal_out = jointsync1(signal_in,sys_params_rx)
+    % initial constants     
     M = sys_params_rx.M;
     N = sys_params_rx.N_carriers;
     STF_start = sys_params_rx.STF_start;
@@ -13,6 +8,10 @@ function signal_out = jointsync1(signal_in,sys_params_rx)
     Lc = sys_params_rx.L_CP;
     frame_size = sys_params_rx.frame_size;
 
+
+end
+
+function signal_out = jointsync1(signal_in,sys_params_rx)
 %%%%%% FRAME SYNC STAGE 1 %%%%%%
     m = 1:(2*M+1);
     n = (1:Lc)'; % but usually 0 to Lc-1
@@ -33,7 +32,7 @@ function signal_out = jointsync1(signal_in,sys_params_rx)
     %stf_sync2 = frame_synced_data_stage1((STF_start:data_start-1),2);
 
     ep11 = angle(sum(sum(conj(stf_sync1(n + (m-1)*Lc)).* stf_sync1(n + m*Lc))))/(2*pi*Lc);
-    %ep12 = angle(sum(sum(conj(stf_sync2(n + (m-1)*Lc)).* stf_sync2(n + m*Lc))))/(2*pi*Lc);
+    ep12 = angle(sum(sum(conj(stf_sync2(n + (m-1)*Lc)).* stf_sync2(n + m*Lc))))/(2*pi*Lc);
     
     % Phase offset in comparison with the first symbol of the first frame
     % frame_id = 1;
@@ -42,9 +41,9 @@ function signal_out = jointsync1(signal_in,sys_params_rx)
 
     n1 = (0:length(signal_in)-1)';
     
-    %final_e = mean([ep11, ep12]); % shouldnt each be evaluated separately?
+    final_e = mean([ep11, ep12]); % shouldnt each be evaluated separately?
     
-    cfo_stage1 = signal_in.*exp(-1j*2*pi*ep11*n1);
+    cfo_stage1 = signal_in.*exp(-1j*2*pi*final_e*n1);
 
 %%%%%% FRAME SYNC STAGE 2 %%%%%%
     freq_synced_input_data = cfo_stage1(CEF_start:end,1);  % assuming both antennas are the same ...
@@ -68,13 +67,13 @@ function signal_out = jointsync1(signal_in,sys_params_rx)
 %%%%% FREQ SYNC STAGE 2 %%%%%
 
     cef_sync1 = frame_synced_data(CEF_start+Lc:data_start-1,1);
-    %cef_sync2 = frame_synced_data(CEF_start+Lc:data_start-1,2);
+    cef_sync2 = frame_synced_data(CEF_start+Lc:data_start-1,2);
 
     n = 1:N;
     ep21 = (1/(2*pi*N))*angle(sum(conj(cef_sync1(n)).*cef_sync1(n+N)));
-    %ep22 = (1/(2*pi*N))*angle(sum(conj(cef_sync2(n)).*cef_sync2(n+N)));
-    %final_e = mean([ep21,ep22]);
+    ep22 = (1/(2*pi*N))*angle(sum(conj(cef_sync2(n)).*cef_sync2(n+N)));
+    final_e = mean([ep21,ep22]);
     n1 = (0:length(frame_synced_data)-1)';
    
-    signal_out = frame_synced_data.*exp(-1j*2*pi*ep21*n1);
+    signal_out = frame_synced_data.*exp(-1j*2*pi*final_e*n1);
 end

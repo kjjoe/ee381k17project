@@ -42,14 +42,14 @@ function sys_params_tx = init_sdr_tx(sys_params_base,varargin)
     sys_params_tx.filt_spans = 10; % Filter span of square root raised cosine (SRRC) filter (in symbols)
 
     % Transmitter USRP hardware parameters
-    sys_params_tx.usrp_ip_address = '192.168.10.3,192.168.10.2'; % USRP IP address 
+    sys_params_tx.usrp_ip_address = '192.168.10.2,192.168.10.3'; % USRP IP address 
     sys_params_tx.usrp_sample_rate = 5e6; % USRP baseband sample rate 
     sys_params_tx.usrp_gain = 10; % Transmitting gain
     sys_params_tx.usrp_local_oscillator_offset = 0; % Local oscillator offset
     sys_params_tx.usrp_clock_source = 'External';  % Source of frequency reference
     sys_params_tx.usrp_pps_source = 'Internal';    % Source of timing reference
     sys_params_tx.usrp_channelmapping = [1,2];
-    sys_params_tx.total_frames_to_send = 300000; % The total number of frames to send
+    sys_params_tx.total_frames_to_send = 1000000; % The total number of frames to send
     
     %% Customize the parameters according to input arguments (varargin)
     n_var_in = length(varargin);

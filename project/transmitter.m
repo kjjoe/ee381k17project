@@ -31,7 +31,7 @@ sys_params_tx = init_sdr_tx(sys_params_base,...
 
 %% Data generation 
 % Step 1: generate random bit for transmission
-%rng(15)
+rng(15)
 bits_sent = randi([0 1], sys_params_tx.payload_size_in_bits, 1);
 %bits_sent = zeros(sys_params_tx.payload_size_in_bits,1);
 % bits_sent(1:4:end) = 1;
@@ -60,7 +60,7 @@ save frame_to_send frame_to_send;
 
 %% Data transmission
 
-compile_it = true;
+compile_it = false;
 use_codegen = false;
 use_wireless_link = false; % true: test with real wireless link. false: test with simulated channel  
 if compile_it

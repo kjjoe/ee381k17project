@@ -58,8 +58,8 @@ void run_usrp_tx_api(run_usrp_txStackData *SD, const mxArray * const prhs[2],
   int32_T iv24[1];
   static const char * sv0[1] = { "sys_params_tx" };
 
-  static const uint32_T uv0[4] = { 3686791558U, 1740550047U, 2918583036U,
-    1412096941U };
+  static const uint32_T uv0[4] = { 4165967128U, 555698097U, 2743722212U,
+    2168024983U };
 
   emlrtStack st = { NULL,              /* site */
     NULL,                              /* tls */

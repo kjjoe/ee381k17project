@@ -5,9 +5,8 @@ function [H,G,h_est] = channel_estimation(signal_in,sys_params_rx)
     L = sys_params_rx.channel_order_estimate;
     N_tx = sys_params_rx.N_tx;
     N_rx = sys_params_rx.N_rx;
-
-    CE = signal_in(Lc+1:Lc+N,:);
-
+    %CE = [signal_in((Lc+1:Lc+N)+shift1,1),signal_in((Lc+1:Lc+N)+shift2,2)] ;
+    CE = signal_in((Lc+1:Lc+N),:);
     Y = reshape(transpose(fft(CE,N)/sqrt(N)),[],1); % why does sqrt(8) provide the correct scaling?
 
     training = reshape(transpose([sys_params_rx.single_CE_freq_domain{1}, sys_params_rx.single_CE_freq_domain{2}]),[],1);

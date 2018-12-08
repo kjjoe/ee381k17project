@@ -100,8 +100,8 @@ void SDRuReceiver_setupImplLocal(const emlrtStack *sp, comm_SDRuReceiver *obj,
 
   char * addr_c;
   static const uint8_T addr_null[26] = { 49U, 57U, 50U, 46U, 49U, 54U, 56U, 46U,
-    49U, 48U, 46U, 51U, 44U, 49U, 57U, 50U, 46U, 49U, 54U, 56U, 46U, 49U, 48U,
-    46U, 50U, 0U };
+    49U, 48U, 46U, 50U, 44U, 49U, 57U, 50U, 46U, 49U, 54U, 56U, 46U, 49U, 48U,
+    46U, 51U, 0U };
 
   uint8_T req_null[16];
   char * req_c;

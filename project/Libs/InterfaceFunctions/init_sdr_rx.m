@@ -57,7 +57,7 @@ function sys_params_rx = init_sdr_rx(sys_params_base, varargin)
     sys_params_rx.downsampling_factor = 4; % Downsampling factor
 
     % Receiver USRP hardware parameters
-    sys_params_rx.usrp_ip_address = '192.168.10.3,192.168.10.2'; % USRP IP address 
+    sys_params_rx.usrp_ip_address = '192.168.10.2,192.168.10.3'; % USRP IP address 
     sys_params_rx.usrp_sample_rate = 5e6; % USRP baseband sample rate   
     sys_params_rx.usrp_gain = 10; % Receiving gain
     sys_params_rx.rx_buffered_frame = 10; % Number of frames fetched from the USRP device at each call

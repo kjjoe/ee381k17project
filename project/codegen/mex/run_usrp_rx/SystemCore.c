@@ -135,7 +135,7 @@ static void SystemCore_setupAndReset(const emlrtStack *sp, comm_SDRuReceiver
       emlrtErrorWithMessageIdR2018a(&c_st, &k_emlrtRTEI,
         "sdru:reportSDRuStatus:NotCompatible",
         "sdru:reportSDRuStatus:NotCompatible", 6, 4, 25,
-        "192.168.10.3,192.168.10.2", 4, 43,
+        "192.168.10.2,192.168.10.3", 4, 43,
         "returned by \'getSDRuDriverVersion\' function");
     }
     break;
@@ -145,7 +145,7 @@ static void SystemCore_setupAndReset(const emlrtStack *sp, comm_SDRuReceiver
       emlrtErrorWithMessageIdR2018a(&c_st, &l_emlrtRTEI,
         "sdru:reportSDRuStatus:NotResponding",
         "sdru:reportSDRuStatus:NotResponding", 3, 4, 25,
-        "192.168.10.3,192.168.10.2");
+        "192.168.10.2,192.168.10.3");
     }
     break;
 
@@ -153,7 +153,7 @@ static void SystemCore_setupAndReset(const emlrtStack *sp, comm_SDRuReceiver
     if (deviceStatus == UsrpDriverRxBusy) {
       emlrtErrorWithMessageIdR2018a(&c_st, &m_emlrtRTEI,
         "sdru:reportSDRuStatus:RxBusy", "sdru:reportSDRuStatus:RxBusy", 3, 4, 25,
-        "192.168.10.3,192.168.10.2");
+        "192.168.10.2,192.168.10.3");
     }
     break;
 
@@ -161,7 +161,7 @@ static void SystemCore_setupAndReset(const emlrtStack *sp, comm_SDRuReceiver
     if (deviceStatus == UsrpDriverTxBusy) {
       emlrtErrorWithMessageIdR2018a(&c_st, &n_emlrtRTEI,
         "sdru:reportSDRuStatus:TxBusy", "sdru:reportSDRuStatus:TxBusy", 3, 4, 25,
-        "192.168.10.3,192.168.10.2");
+        "192.168.10.2,192.168.10.3");
     }
     break;
 
@@ -169,7 +169,7 @@ static void SystemCore_setupAndReset(const emlrtStack *sp, comm_SDRuReceiver
     if (deviceStatus == UsrpDriverBusy) {
       emlrtErrorWithMessageIdR2018a(&c_st, &o_emlrtRTEI,
         "sdru:reportSDRuStatus:Busy", "sdru:reportSDRuStatus:Busy", 3, 4, 25,
-        "192.168.10.3,192.168.10.2");
+        "192.168.10.2,192.168.10.3");
     }
     break;
 

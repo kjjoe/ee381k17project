@@ -134,7 +134,7 @@ void run_usrp_tx(run_usrp_txStackData *SD, const emlrtStack *sp, const creal_T
     emlrtAssign(&y, m2);
     st.site = &jb_emlrtRSI;
     disp(&st, y, &emlrtMCI);
-    while (frame_id <= 300000) {
+    while (frame_id <= 1000000) {
       /*  Feed one frame to the USRP device and the frame is */
       /*  automatically transmitted by the USRP device */
       st.site = &b_emlrtRSI;
