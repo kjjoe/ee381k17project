@@ -22,7 +22,7 @@ sys_params_base = init_sdr('usrp_center_frequency', 2.40e9, ...
 % System parameters for the transmitter                       
 sys_params_tx = init_sdr_tx(sys_params_base,...
                            'usrp_sample_rate',5e6,... % USRP sampling rate
-                           'usrp_gain',15,... % USRP transmitter gain
+                           'usrp_gain',15,... %%%%%%%% USRP receiver gain %%%%%%%%
                            'upsampling_factor', 10,... % Upsampling factor
                            'roll_off', 0.5,... % Rolling factor
                            'filt_spans', 6,...  % Filter span of square root raised cosine (SRRC) filters (in symbols)
@@ -31,11 +31,8 @@ sys_params_tx = init_sdr_tx(sys_params_base,...
 
 %% Data generation 
 % Step 1: generate random bit for transmission
-rng(15)
+rng(135)
 bits_sent = randi([0 1], sys_params_tx.payload_size_in_bits, 1);
-%bits_sent = zeros(sys_params_tx.payload_size_in_bits,1);
-% bits_sent(1:4:end) = 1;
-% bits_sent(4:4:end) = 1;
 
 % Step 2: modulate the bit stream with QAM
 qam_modulated_data = qam_mod(bits_sent, sys_params_tx.M);

@@ -30,10 +30,8 @@ function signal_out = jointsync1(signal_in,sys_params_rx)
 %%%%% FREQ SYNC STAGE 1 %%%%%
 
     stf_sync1 = frame_synced_data_stage1((STF_start:data_start-1),1);
-    %stf_sync2 = frame_synced_data_stage1((STF_start:data_start-1),2);
 
     ep11 = angle(sum(sum(conj(stf_sync1(n + (m-1)*Lc)).* stf_sync1(n + m*Lc))))/(2*pi*Lc);
-    %ep12 = angle(sum(sum(conj(stf_sync2(n + (m-1)*Lc)).* stf_sync2(n + m*Lc))))/(2*pi*Lc);
     
     % Phase offset in comparison with the first symbol of the first frame
     % frame_id = 1;
@@ -41,9 +39,6 @@ function signal_out = jointsync1(signal_in,sys_params_rx)
 %     freq_synced_data = input_data .* conj(phase_offset); % Compensate the phase offset
 
     n1 = (0:length(signal_in)-1)';
-    
-    %final_e = mean([ep11, ep12]); % shouldnt each be evaluated separately?
-    
     cfo_stage1 = signal_in.*exp(-1j*2*pi*ep11*n1);
 
 %%%%%% FRAME SYNC STAGE 2 %%%%%%
@@ -68,13 +63,9 @@ function signal_out = jointsync1(signal_in,sys_params_rx)
 %%%%% FREQ SYNC STAGE 2 %%%%%
 
     cef_sync1 = frame_synced_data(CEF_start+Lc:data_start-1,1);
-    %cef_sync2 = frame_synced_data(CEF_start+Lc:data_start-1,2);
 
     n = 1:N;
     ep21 = (1/(2*pi*N))*angle(sum(conj(cef_sync1(n)).*cef_sync1(n+N)));
-    %ep22 = (1/(2*pi*N))*angle(sum(conj(cef_sync2(n)).*cef_sync2(n+N)));
-    %final_e = mean([ep21,ep22]);
     n1 = (0:length(frame_synced_data)-1)';
-   
     signal_out = frame_synced_data.*exp(-1j*2*pi*ep21*n1);
 end

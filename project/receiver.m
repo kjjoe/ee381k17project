@@ -82,7 +82,7 @@ sys_params_base = init_sdr('usrp_center_frequency', 2.40e9,...
 % System parameters for the receiver       
 sys_params_rx = init_sdr_rx(sys_params_base,...
                            'usrp_sample_rate',5e6,... % USRP sampling rate
-                           'usrp_gain',35,... % USRP receiver gain
+                           'usrp_gain',35,... %%%%%%%% USRP receiver gain %%%%%%%%
                            'upsampling_factor', 10,... % Upsampling factor
                            'roll_off', 0.5,... % Rolling factor
                            'filt_spans', 6,...  % Filter span of square root raised cosine (SRRC) filters (in symbols)
@@ -148,7 +148,6 @@ for frame_id = 1:8
     %%% Joint Frame and Frequency Sync %%%
     signal_out = joint_sync(tmp,sys_params_rx);
     
-
     %%% Channel estimation %%%        
     [H,G,h_est] = channel_estimation(signal_out,sys_params_rx);
 
@@ -170,4 +169,3 @@ for frame_id = 1:8
 end
 
 fprintf('snr1: %2.2f\nsnr2: %2.2f\nSER: %0.4f\nBER: %0.4f\n',snr1,snr2,s2,b2)
-%fprintf('shift1: %d\nshift2: %d\nSER: %0.4f\nBER: %0.4f\n',shift1,shift2,s2,b2)
