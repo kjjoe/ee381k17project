@@ -31,7 +31,7 @@ sys_params_tx = init_sdr_tx(sys_params_base,...
 
 %% Data generation 
 % Step 1: generate random bit for transmission
-rng(135)
+rng(1234)
 bits_sent = randi([0 1], sys_params_tx.payload_size_in_bits, 1);
 
 % Step 2: modulate the bit stream with QAM

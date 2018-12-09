@@ -1,10 +1,10 @@
-function signal_out = joint_sync(signal_in,sys_params_rx)
-    signal_out = [jointsync1(signal_in(:,1),sys_params_rx), ...
-                  jointsync1(signal_in(:,2),sys_params_rx)];
+function signal_out = joint_sync(signal_in,sys_params_rx,shift)
+    signal_out = [jointsync1(signal_in(:,1),sys_params_rx,shift), ...
+                  jointsync1(signal_in(:,2),sys_params_rx,shift)];
 end
 
 %%% single side only
-function signal_out = jointsync1(signal_in,sys_params_rx)
+function signal_out = jointsync1(signal_in,sys_params_rx,shift)
     M = sys_params_rx.M;
     N = sys_params_rx.N_carriers;
     STF_start = sys_params_rx.STF_start;
@@ -39,11 +39,12 @@ function signal_out = jointsync1(signal_in,sys_params_rx)
 %     freq_synced_data = input_data .* conj(phase_offset); % Compensate the phase offset
 
     n1 = (0:length(signal_in)-1)';
+    ep11 = 0;
     cfo_stage1 = signal_in.*exp(-1j*2*pi*ep11*n1);
 
 %%%%%% FRAME SYNC STAGE 2 %%%%%%
     freq_synced_input_data = cfo_stage1(CEF_start:end,1);  % assuming both antennas are the same ...
-    n = 1:(Lc+N);
+    n = 1:(N+Lc);
     R2 = zeros(frame_size,1);
     for d = 0:frame_size-1
         num = abs(sum(freq_synced_input_data(n+N+d).*conj(freq_synced_input_data(n+d))))^2;
@@ -56,7 +57,7 @@ function signal_out = jointsync1(signal_in,sys_params_rx)
     [~,offset2] = max(R2);
     
     if offset2 > 1 % why does this improve my SER a lot?
-        offset2 = offset2 - 1;
+        offset2 = offset2 - shift;
     end
     frame_synced_data = cfo_stage1(offset2:offset2+sys_params_rx.frame_size-1,:);
 
@@ -67,5 +68,6 @@ function signal_out = jointsync1(signal_in,sys_params_rx)
     n = 1:N;
     ep21 = (1/(2*pi*N))*angle(sum(conj(cef_sync1(n)).*cef_sync1(n+N)));
     n1 = (0:length(frame_synced_data)-1)';
+    %ep21 = 0;
     signal_out = frame_synced_data.*exp(-1j*2*pi*ep21*n1);
 end

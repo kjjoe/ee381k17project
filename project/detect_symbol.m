@@ -19,7 +19,7 @@ function symbol_out = detect_symbol(signal_in,H,G,sys_params_rx)
 
     % detect 1 block at a time
     symbol_out = ZF(Ydata,G,bps,blockps,N_rx,N,qam,sys_params_rx);
-    %symbol_out2 = noZF(Ydata,H,bps,blockps,N_rx,N,qam,sys_params_rx);
+    %symbol_out = noZF(Ydata,H,bps,blockps,N_rx,N,qam,sys_params_rx);
 end
 
 function qam2 = setup_mimo_qam(M,N_rx)
@@ -63,7 +63,7 @@ end
 function symbol_out = ZF(Ydata,G,bps,blockps,N_rx,N,qam,sys_params_rx)
     symbol_out = zeros(bps*blockps/N_rx,N_rx);
     N2 = 2*N; % hard coded...
-    %forplots = []; For debugging
+    forplots = []; %For debugging
     for block = 0:(blockps/N_rx)-1
         Ydatablock = Ydata(N2*block+1 : N2*block+N2  );
         s_tmp = zeros(bps*2,1);
@@ -71,11 +71,12 @@ function symbol_out = ZF(Ydata,G,bps,blockps,N_rx,N,qam,sys_params_rx)
         for k = (sys_params_rx.data_carriers_index)
             z_tmp = G(:,:,k+1)*Ydatablock(2*k+1:2*k+2);
             [~,ind] = min(reshape(vecnorm(z_tmp-qam),[],1));
-            %forplots = [forplots; z_tmp];
+            forplots = [forplots; z_tmp];
             s_tmp(2*index+1:2*index+2) = qam(:,:,ind);
             index = index+1;
         end
         symbol_out(bps*block+1 : bps*block+bps,:) = transpose(reshape(s_tmp,2,[]));
+
     end
 end
   

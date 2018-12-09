@@ -360,7 +360,7 @@ comm_SDRuReceiver *SDRuBase_SDRuBase(const emlrtStack *sp, comm_SDRuReceiver
   d_st.site = &n_emlrtRSI;
   e_st.site = &e_emlrtRSI;
   d_st.site = &n_emlrtRSI;
-  b_obj->Gain = 35.0;
+  b_obj->Gain = 10.0;
   d_st.site = &n_emlrtRSI;
   e_st.site = &e_emlrtRSI;
   d_st.site = &n_emlrtRSI;

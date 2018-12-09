@@ -40,8 +40,8 @@ void run_usrp_rx_api(run_usrp_rxStackData *SD, const mxArray * const prhs[1],
   int32_T iv25[1];
   static const char * sv0[1] = { "sys_params_rx" };
 
-  static const uint32_T uv0[4] = { 427950502U, 2332011328U, 3249234285U,
-    647358170U };
+  static const uint32_T uv0[4] = { 3866644775U, 4148783165U, 199102426U,
+    84318898U };
 
   emlrtStack st = { NULL,              /* site */
     NULL,                              /* tls */
