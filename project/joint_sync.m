@@ -68,6 +68,6 @@ function signal_out = jointsync1(signal_in,sys_params_rx,shift)
     n = 1:N;
     ep21 = (1/(2*pi*N))*angle(sum(conj(cef_sync1(n)).*cef_sync1(n+N)));
     n1 = (0:length(frame_synced_data)-1)';
-    %ep21 = 0;
+    ep21 = 0;
     signal_out = frame_synced_data.*exp(-1j*2*pi*ep21*n1);
 end

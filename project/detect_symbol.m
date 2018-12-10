@@ -76,7 +76,7 @@ function symbol_out = ZF(Ydata,G,bps,blockps,N_rx,N,qam,sys_params_rx)
             index = index+1;
         end
         symbol_out(bps*block+1 : bps*block+bps,:) = transpose(reshape(s_tmp,2,[]));
-
+        
     end
 end
   

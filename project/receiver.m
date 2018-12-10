@@ -15,7 +15,7 @@ M = 4;
 payload_size_in_ofdm_symbols = 10;
 N_tx = 2;
 N_rx = 2;
-snr = 1000; %%% be sure to comment before running systemcheck.m
+snr = 50; %%% be sure to comment before running systemcheck.m
 
 %%% Channel %%%
 channel_order = 3; % separate than number of taps
@@ -74,7 +74,7 @@ sys_params_rx = init_sdr_rx(sys_params_base,...
                            'total_frames_to_receive', 10); % The total number of frames to receive
 
 %% reset parameters
-totalloop = 5;
+totalloop = 1;
 SER = zeros(sys_params_rx.total_frames_to_receive-2,totalloop);
 ser_ratio = SER;
 BER = SER;
@@ -85,13 +85,13 @@ snr2 = snr1;
 %% LOOP
 
 
-for loop = 1:5
+for loop = 1:1
 
 %% mimo channel simulation
-%load('frame_to_send.mat');
-compile_it = true;
-use_codegen = true;
-use_wireless_link = true; % true: test with real wireless link. false: test with simulated channel  
+load('frame_to_send.mat');
+compile_it = false;
+use_codegen = false;
+use_wireless_link = false; % true: test with real wireless link. false: test with simulated channel  
 if compile_it
     codegen('run_usrp_rx', '-args', {coder.Constant(sys_params_rx)}); %#ok<UNRCH>
 end
@@ -103,7 +103,7 @@ if use_wireless_link
        rx_sig_all = run_usrp_rx(sys_params_rx);
     end
 else %Simulated channel (This is used for simulation instead of real wireless link test)
-    %load('frame_to_send.mat');
+    load('frame_to_send.mat');
     rx_sig_all = zeros(length(frame_to_send(:,1))* sys_params_rx.total_frames_to_receive,N_rx);
     for r = 1:N_rx
         for t = 1:N_tx

@@ -41,8 +41,8 @@ qam_modulated_data = qam_mod(bits_sent, sys_params_tx.M);
 ofdm_payload_symbols = OFDM_mod(qam_modulated_data, sys_params_tx);
 
 % Step 4: Spatial Multiplex
-multiplex = reshape(ofdm_payload_symbols,[],sys_params_tx.N_tx);
-
+%multiplex = reshape(ofdm_payload_symbols,[],sys_params_tx.N_tx);
+multiplex = transpose(reshape(ofdm_payload_symbols,2,[]));
 % Step 5: Add training data
 framed_data = [sys_params_tx.OFDM_preamble; multiplex];
 
