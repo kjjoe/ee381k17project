@@ -13,10 +13,10 @@
 %    sys_params_base is the common system parameters employed  
 %
 %
-% Created Aug. 20, 2018 
-% Modified Oct. 30, 2018
+% Last Modified Dec. 10, 2018
 % Robert W. Heath Jr.
 % Yi Zhang
+% Kevin Joe
 % The University of Texas at Austin
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -30,16 +30,25 @@ function sys_params_base = ofdm_preamble_generator(sys_params_base)
         end
         N_carriers = sys_params_base.N_carriers;  % Number of total subcarriers for SC-FDE and OFDM (N-DFT)
         active_carriers_index = sys_params_base.active_carriers_index;  % Number of active subcarriers
-        N_tx = sys_params_base.N_tx;
+        N_tx = sys_params_base.N_tx; % Number of transmit antennas
+            
+%%%%%%% YOUR CODE GOES HERE %%%%%%%%%
+% your task is to create the second ZC sequence and then prepare the time
+% domain signal to be sent. Each entry in the cell corresponds to 1 antenna.
+% Antenna 1
+% sys_params_base.single_CE_freq_domain{1} = training sequence in frequency domain (column vector)
+% sys_params_base.single_CE_time_domain{1} = training sequence in time domain (column vector)
+% sys_params_base.OFDM_CE{1} = training sequence with cyclic prefix in time domain (column vector)
+% 
+% Antenna 2
+% sys_params_base.single_CE_freq_domain{2} = ;
+% sys_params_base.single_CE_time_domain{2} = ;
+% sys_params_base.OFDM_CE{2} = ;
+
+        % channel estimation field
+        zadoff_chu_training = exp(-(1i*sys_params_base.M_ZC2*pi*[0:sys_params_base.N_ZC-1]'.^2)/sys_params_base.N_ZC);    
+        sys_params_base.training_seq2 = zadoff_chu_training;
         
-        if N_tx > 1 % second training sequence required
-            zadoff_chu_training = exp(-(1i*sys_params_base.M_ZC2*pi*[0:sys_params_base.N_ZC-1]'.^2)/sys_params_base.N_ZC);    
-            sys_params_base.training_seq2 = zadoff_chu_training;
-        end
-        % not useful if there are more than 2 antennas 
-        
-        
-        %%%% CHANNEL ESTIMATION SEQUENCE %%%%
         for loop = 1:N_tx
 
             t = zeros(N_carriers,1);
@@ -53,23 +62,24 @@ function sys_params_base = ofdm_preamble_generator(sys_params_base)
             w = sqrt(N_carriers)*ifft(t,N_carriers);
             prefix = w(end-L_P+1:end);
             totalw = [prefix ; w]; 
-            preamble = [totalw; w];
         
-            sys_params_base.single_CE_freq_domain{loop} = t;
+            sys_params_base.single_CE_freq_domain{loop} = t; 
             sys_params_base.single_CE_time_domain{loop} = w;
             sys_params_base.OFDM_CE{loop} = totalw;
         end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        
         sys_params_base.single_OFDM_training_seq_time_domain_length = N_carriers; 
         
-        
+       
         %%%% CFO ESTIMATION FRAME/FREQ SYNC %%%%%
         STF = wlan802_11a_STF_generator();
+        preamble = [totalw; w];
         sys_params_base.OFDM_CFO = [STF; preamble] ;
 
         sys_params_base.STF_start = length(totalw)+1;
         sys_params_base.CEF_start = sys_params_base.STF_start + length(STF);
          
-        
         sys_params_base.OFDM_preamble = [sys_params_base.OFDM_CE{1}, sys_params_base.OFDM_CE{2}; sys_params_base.OFDM_CFO,sys_params_base.OFDM_CFO];
         sys_params_base.OFDM_preamble_length = length(sys_params_base.OFDM_preamble);
         sys_params_base.data_start = length(sys_params_base.OFDM_preamble)+1;

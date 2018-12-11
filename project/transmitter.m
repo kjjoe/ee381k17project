@@ -1,4 +1,17 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% transmitter.m
+%
+% This is the main function for transmitting data
+%
+% Last Modified Dec. 20, 2018 
+% Robert W. Heath Jr.
+% Yi Zhang
+% Kevin Joe
+% The University of Texas at Austin
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%% paths
 addpath(genpath([pwd '/stu_to_do']));
 addpath(genpath([pwd '/Libs']));
 
@@ -31,20 +44,25 @@ sys_params_tx = init_sdr_tx(sys_params_base,...
 
 %% Data generation 
 % Step 1: generate random bit for transmission
-rng(1234)
+%rng(1234)
 bits_sent = randi([0 1], sys_params_tx.payload_size_in_bits, 1);
+save bits_sent bits_sent; 
 
 % Step 2: modulate the bit stream with QAM
 qam_modulated_data = qam_mod(bits_sent, sys_params_tx.M);
+save qam_modulated_data qam_modulated_data; 
 
 % Step 3: generate the frame OFDM
 ofdm_payload_symbols = OFDM_mod(qam_modulated_data, sys_params_tx);
 
 % Step 4: Spatial Multiplex
-%multiplex = reshape(ofdm_payload_symbols,[],sys_params_tx.N_tx);
-multiplex = transpose(reshape(ofdm_payload_symbols,2,[]));
+multiplex = reshape(ofdm_payload_symbols,[],sys_params_tx.N_tx);
+
 % Step 5: Add training data
+
+%%%%% your preamble is added here %%%%%
 framed_data = [sys_params_tx.OFDM_preamble; multiplex];
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Step 6: Pulse Shaping
 

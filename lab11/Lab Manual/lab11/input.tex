@@ -1,0 +1,629 @@
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+
+\renewcommand{\chaptername}{Laboratory}
+\usepackage{amsfonts}
+\usepackage{times}
+\usepackage[pdftex]{graphicx}
+%\DeclareGraphicsExtensions{.jpg}
+%\usepackage[dvips]{graphicx}
+%\DeclareGraphicsExtensions{.eps}
+\usepackage{latexsym}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{mathabx}
+\usepackage{cite}
+\usepackage{verbatim}
+\usepackage[outdir=./]{epstopdf}
+\usepackage{bm}
+\usepackage{cancel}
+\usepackage{color}
+\usepackage{wrapfig}
+\usepackage{listings} % alternative to verbatim package
+\lstset{
+basicstyle=\small\ttfamily,
+columns=flexible,
+breaklines=true
+}
+\usepackage[pdftex]{hyperref} % added to make clickable URLS
+
+
+\newtheorem{theorem}{Theorem}
+
+\newtheorem{acknowledgement}[theorem]{Acknowledgement}
+\newtheorem{algorithm}[theorem]{Algorithm}
+\newtheorem{assumption}[theorem]{Assumption}
+\newtheorem{axiom}[theorem]{Axiom}
+\newtheorem{case}[theorem]{Case}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{conclusion}[theorem]{Conclusion}
+\newtheorem{condition}[theorem]{Condition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{criterion}[theorem]{Criterion}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{exercise}[theorem]{Exercise}
+\newtheorem{fact}[theorem]{Fact}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{notation}[theorem]{Notation}
+\newtheorem{problem}[theorem]{Problem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{solution}[theorem]{Solution}
+\newtheorem{summary}[theorem]{Summary}
+\newtheorem{remark}[theorem]{Remark}
+\newenvironment{proof}{ \textbf{Proof:} }{ \hfill $\Box$}
+  
+\newcommand{\figref}[1]{{Fig.}~\ref{#1}}
+\newcommand{\secref}[1]{{Section}~\ref{#1}}
+\newcommand{\exref}[1]{{Example}~\ref{#1}}
+\newcommand{\tabref}[1]{{Table}~\ref{#1}}
+\newcommand{\eref}[1]{(\ref{#1})}
+\newcommand{\bookemph}[1]{ {\em #1}}
+\newcommand{\Ns}{N_{\mathrm{s}}}
+\newcommand{\Ut}{U_\mathrm{t}}
+\newcommand{\fig}[1]{Fig.\ \ref{#1}}
+\def\onehalf{\frac{1}{2}}
+\def\etal{et.\/ al.\/}
+\newcommand{\bydef}{\triangleq}
+
+% Specific additions for the wireless lab
+\newcommand{\turnin}[1]{\noindent \fbox{\parbox{\linewidth}{\textbf{Turn in:} #1}}}
+\newcommand{\showta}[1]{\noindent \fbox{\parbox{\linewidth}{\textbf{Show the TA:} #1}}}
+
+\def\Trans {{\rm T}}
+\def\Conj {{\rm c}}
+\def\tr {{\rm tr}}
+\def\E{{\mathbb E}}
+\def\P{{\mathbb P}}
+\def\phase{\mathrm{phase}}
+\def\Mt{{M_\mathrm{t}}}
+\def\Mr{{M_\mathrm{r}}}
+\def\Ns{{N_\mathrm{s}}}
+\def\Nt{{N_\mathrm{t}}}
+\def\Ntot{{N_\mathrm{tot}}}
+\def\Nbuf{{N_\mathrm{buf}}}
+\def\Ntr{{N_\mathrm{tr}}}
+\def\Nr{{N_\mathrm{r}}}
+\def\Ne{{N_\mathrm{e}}}
+\def\Ns{{N_\mathrm{s}}}
+\def\Np{{N_\mathrm{p}}}
+\def\Nc{{N_\mathrm{c}}}
+\def\Ng{{N_\mathrm{g}}}
+\def\Es{{E_\mathrm{s}}}
+\def\Ex{{E_\mathrm{x}}}
+\def\No{{N_\mathrm{o}}}
+\def\Lc{{L_\mathrm{c}}}
+\def\Lt{{L_\mathrm{t}}}
+\def\Lp{{L_\mathrm{p}}}
+\def\Lf{{L_\mathrm{f}}}
+\def\nd{{n_\mathrm{d}}}
+\def\sinc{\mathrm{sinc}}
+\def\dmin{d_{\mathrm{min}}}
+%\def\dmin2{d^2_{\mathrm{min}}}
+\def\vecc{\mathrm{vec}} % changed it to vec to not overwrite \vec from amsmath
+\def\kron{\otimes}
+\def\onehalf{\frac{1}{2}}
+\def\Rdelay{R_{\mathrm{delay}}}
+\def\Rdoppler{R_{\mathrm{Doppler}}}
+\def\Bc{B_{\mathrm{coh}}}
+\def\Tc{T_{\mathrm{coh}}}
+\def\Sdelay{\sfS_{\mathrm{delay}}}
+\def\Sdoppler{\sfS_{\mathrm{Doppler}}}
+\def\gtx{g_{\mathrm{tx}}}
+\def\Gtx{G_{\mathrm{tx}}}
+\def\grx{g_{\mathrm{rx}}}
+\def\sigmaRMSdelay{\sigma_{\mathrm{RMS,delay}}}
+\def\sigmaRMSdoppler{\sigma_{\mathrm{RMS,doppler}}}
+\def\Grx{G_{\mathrm{rx}}}
+\def\SNR{\mathrm{SNR}} % note that I changed this
+\def\SINR{\mathrm{SINR}} % note that I changed this
+\def\ExNo{\frac{E_{\mathrm{x}}}{N_{\mathrm{o}}}}
+\def\bargtx{\bar{g}_{\textrm{tx}}}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\def\Gauss{{\mathcal{N}}}
+\def\GaussComp{{\mathcal{N}_\mathbb{C}}}
+\def\Pe{P_{\mathrm{e}}}
+\def\dB{\mathrm{dB}}
+\def\dBm{\mathrm{dBm}}
+\def\Watt{\mathrm{W}}
+\def\mWatt{\mathrm{mW}}
+\def\DeltaTime{\Delta_{\mathrm{time}}}
+\def\DeltaFreq{\Delta_{\mathrm{freq}}}
+\def\DeltaLag{\Delta_{\mathrm{lag}}}
+\def\Rtime{R_{\mathrm{time}}}
+\def\Rlag{R_{\mathrm{lag}}}
+\def\wtrain{w_{\text{train}}}
+\def\DFT{\text{DFT}}
+\def\IDFT{\text{IDFT}}
+
+
+
+% blackboard lowercase
+\def\bydef{:=}
+\def\bba{{\mathbb{a}}}
+\def\bbb{{\mathbb{b}}}
+\def\bbc{{\mathbb{c}}}
+\def\bbd{{\mathbb{d}}}
+\def\bbee{{\mathbb{e}}}
+\def\bbff{{\mathbb{f}}}
+\def\bbg{{\mathbb{g}}}
+\def\bbh{{\mathbb{h}}}
+\def\bbi{{\mathbb{i}}}
+\def\bbj{{\mathbb{j}}}
+\def\bbk{{\mathbb{k}}}
+\def\bbl{{\mathbb{l}}}
+\def\bbm{{\mathbb{m}}}
+\def\bbn{{\mathbb{n}}}
+\def\bbo{{\mathbb{o}}}
+\def\bbp{{\mathbb{p}}}
+\def\bbq{{\mathbb{q}}}
+\def\bbr{{\mathbb{r}}}
+\def\bbs{{\mathbb{s}}}
+\def\bbt{{\mathbb{t}}}
+\def\bbu{{\mathbb{u}}}
+\def\bbv{{\mathbb{v}}}
+\def\bbw{{\mathbb{w}}}
+\def\bbx{{\mathbb{x}}}
+\def\bby{{\mathbb{y}}}
+\def\bbz{{\mathbb{z}}}
+\def\bbone{{\mathrm{I}}}
+
+% Bold lowercase
+\def\bydef{:=}
+\def\ba{{\mathbf{a}}}
+\def\bb{{\mathbf{b}}}
+\def\bc{{\mathbf{c}}}
+\def\bd{{\mathbf{d}}}
+\def\bee{{\mathbf{e}}}
+\def\bff{{\mathbf{f}}}
+\def\bg{{\mathbf{g}}}
+\def\bh{{\mathbf{h}}}
+\def\bi{{\mathbf{i}}}
+\def\bj{{\mathbf{j}}}
+\def\bk{{\mathbf{k}}}
+\def\bl{{\mathbf{l}}}
+\def\bmm{{\mathbf{m}}} % changed to avoid conflict with bold
+\def\bn{{\mathbf{n}}}
+\def\bo{{\mathbf{o}}}
+\def\bp{{\mathbf{p}}}
+\def\bq{{\mathbf{q}}}
+\def\br{{\mathbf{r}}}
+\def\bs{{\mathbf{s}}}
+\def\bt{{\mathbf{t}}}
+\def\bu{{\mathbf{u}}}
+\def\bv{{\mathbf{v}}}
+\def\bw{{\mathbf{w}}}
+\def\bx{{\mathbf{x}}}
+\def\by{{\mathbf{y}}}
+\def\bz{{\mathbf{z}}}
+%\def\b0{{\mathbf{0}}}
+%\def\b1{{\mathbf{1}}}
+\def\bzero{{\mathbf{0}}}
+\def\bone{{\mathbf{1}}}
+\def\NLF{N_{\mathrm{LF}}}
+% Bold capital letters
+\def\bA{{\mathbf{A}}}
+\def\bB{{\mathbf{B}}}
+\def\bC{{\mathbf{C}}}
+\def\bD{{\mathbf{D}}}
+\def\bE{{\mathbf{E}}}
+\def\bF{{\mathbf{F}}}
+\def\bG{{\mathbf{G}}}
+\def\bH{{\mathbf{H}}}
+\def\bI{{\mathbf{I}}}
+\def\bJ{{\mathbf{J}}}
+\def\bK{{\mathbf{K}}}
+\def\bL{{\mathbf{L}}}
+\def\bM{{\mathbf{M}}}
+\def\bN{{\mathbf{N}}}
+\def\bO{{\mathbf{O}}}
+\def\bP{{\mathbf{P}}}
+\def\bQ{{\mathbf{Q}}}
+\def\bR{{\mathbf{R}}}
+\def\bS{{\mathbf{S}}}
+\def\bT{{\mathbf{T}}}
+\def\bU{{\mathbf{U}}}
+\def\bV{{\mathbf{V}}}
+\def\bW{{\mathbf{W}}}
+\def\bX{{\mathbf{X}}}
+\def\bY{{\mathbf{Y}}}
+\def\bZ{{\mathbf{Z}}}
+
+% Blackboard capital letters
+\def\bbA{{\mathbb{A}}}
+\def\bbB{{\mathbb{B}}}
+\def\bbC{{\mathbb{C}}}
+\def\bbD{{\mathbb{D}}}
+\def\bbE{{\mathbb{E}}}
+\def\bbF{{\mathbb{F}}}
+\def\bbG{{\mathbb{G}}}
+\def\bbH{{\mathbb{H}}}
+\def\bbI{{\mathbb{I}}}
+\def\bbJ{{\mathbb{J}}}
+\def\bbK{{\mathbb{K}}}
+\def\bbL{{\mathbb{L}}}
+\def\bbM{{\mathbb{M}}}
+\def\bbN{{\mathbb{N}}}
+\def\bbO{{\mathbb{O}}}
+\def\bbP{{\mathbb{P}}}
+\def\bbQ{{\mathbb{Q}}}
+\def\bbR{{\mathbb{R}}}
+\def\bbS{{\mathbb{S}}}
+\def\bbT{{\mathbb{T}}}
+\def\bbU{{\mathbb{U}}}
+\def\bbV{{\mathbb{V}}}
+\def\bbW{{\mathbb{W}}}
+\def\bbX{{\mathbb{X}}}
+\def\bbY{{\mathbb{Y}}}
+\def\bbZ{{\mathbb{Z}}}
+
+% Caligraphic capital letters
+\def\cA{\mathcal{A}}
+\def\cB{\mathcal{B}}
+\def\cC{\mathcal{C}}
+\def\cD{\mathcal{D}}
+\def\cE{\mathcal{E}}
+\def\cF{\mathcal{F}}
+\def\cG{\mathcal{G}}
+\def\cH{\mathcal{H}}
+\def\cI{\mathcal{I}}
+\def\cJ{\mathcal{J}}
+\def\cK{\mathcal{K}}
+\def\cL{\mathcal{L}}
+\def\cM{\mathcal{M}}
+\def\cN{\mathcal{N}}
+\def\cO{\mathcal{O}}
+\def\cP{\mathcal{P}}
+\def\cQ{\mathcal{Q}}
+\def\cR{\mathcal{R}}
+\def\cS{\mathcal{S}}
+\def\cT{\mathcal{T}}
+\def\cU{\mathcal{U}}
+\def\cV{\mathcal{V}}
+\def\cW{\mathcal{W}}
+\def\cX{\mathcal{X}}
+\def\cY{\mathcal{Y}}
+\def\cZ{\mathcal{Z}}
+
+% Sans serif capital letters
+\def\sfA{\mathsf{A}}
+\def\sfB{\mathsf{B}}
+\def\sfC{\mathsf{C}}
+\def\sfD{\mathsf{D}}
+\def\sfE{\mathsf{E}}
+\def\sfF{\mathsf{F}}
+\def\sfG{\mathsf{G}}
+\def\sfH{\mathsf{H}}
+\def\sfI{\mathsf{I}}
+\def\sfJ{\mathsf{J}}
+\def\sfK{\mathsf{K}}
+\def\sfL{\mathsf{L}}
+\def\sfM{\mathsf{M}}
+\def\sfN{\mathsf{N}}
+\def\sfO{\mathsf{O}}
+\def\sfP{\mathsf{P}}
+\def\sfQ{\mathsf{Q}}
+\def\sfR{\mathsf{R}}
+\def\sfS{\mathsf{S}}
+\def\sfT{\mathsf{T}}
+\def\sfU{\mathsf{U}}
+\def\sfV{\mathsf{V}}
+\def\sfW{\mathsf{W}}
+\def\sfX{\mathsf{X}}
+\def\sfY{\mathsf{Y}}
+\def\sfZ{\mathsf{Z}}
+
+
+% Bold sans serif capital letters
+\def\bsfA{\bm{\mathsf{A}}}
+\def\bsfB{\bm{\mathsf{B}}}
+\def\bsfC{\bm{\mathsf{C}}}
+\def\bsfD{\bm{\mathsf{D}}}
+\def\bsfE{\bm{\mathsf{E}}}
+\def\bsfF{\bm{\mathsf{F}}}
+\def\bsfG{\bm{\mathsf{G}}}
+\def\bsfH{\bm{\mathsf{H}}}
+\def\bsfI{\bm{\mathsf{I}}}
+\def\bsfJ{\bm{\mathsf{J}}}
+\def\bsfK{\bm{\mathsf{K}}}
+\def\bsfL{\bm{\mathsf{L}}}
+\def\bsfM{\bm{\mathsf{M}}}
+\def\bsfN{\bm{\mathsf{N}}}
+\def\bsfO{\bm{\mathsf{O}}}
+\def\bsfP{\bm{\mathsf{P}}}
+\def\bsfQ{\bm{\mathsf{Q}}}
+\def\bsfR{\bm{\mathsf{R}}}
+\def\bsfS{\bm{\mathsf{S}}}
+\def\bsfT{\bm{\mathsf{T}}}
+\def\bsfU{\bm{\mathsf{U}}}
+\def\bsfV{\bm{\mathsf{V}}}
+\def\bsfW{\bm{\mathsf{W}}}
+\def\bsfX{\bm{\mathsf{X}}}
+\def\bsfY{\bm{\mathsf{Y}}}
+\def\bsfZ{\bm{\mathsf{Z}}}
+
+
+
+% sans serif lowercase
+\def\bydef{:=}
+\def\sfa{{\mathsf{a}}}
+\def\sfb{{\mathsf{b}}}
+\def\sfc{{\mathsf{c}}}
+\def\sfd{{\mathsf{d}}}
+\def\sfee{{\mathsf{e}}}
+\def\sfff{{\mathsf{f}}}
+\def\sfg{{\mathsf{g}}}
+\def\sfh{{\mathsf{h}}}
+\def\sfi{{\mathsf{i}}}
+\def\sfj{{\mathsf{j}}}
+\def\sfk{{\mathsf{k}}}
+\def\sfl{{\mathsf{l}}}
+\def\sfm{{\mathsf{m}}}
+\def\sfn{{\mathsf{n}}}
+\def\sfo{{\mathsf{o}}}
+\def\sfp{{\mathsf{p}}}
+\def\sfq{{\mathsf{q}}}
+\def\sfr{{\mathsf{r}}}
+\def\sfs{{\mathsf{s}}}
+\def\sft{{\mathsf{t}}}
+\def\sfu{{\mathsf{u}}}
+\def\sfv{{\mathsf{v}}}
+\def\sfw{{\mathsf{w}}}
+\def\sfx{{\mathsf{x}}}
+\def\sfy{{\mathsf{y}}}
+\def\sfz{{\mathsf{z}}}
+\def\sf0{{\mathsf{0}}}
+
+% bold sans serif lowercase
+\def\bsfa{{\bm{\mathsf{a}}}}
+\def\bsfb{{\bm{\mathsf{b}}}}
+\def\bsfc{{\bm{\mathsf{c}}}}
+\def\bsfd{{\bm{\mathsf{d}}}}
+\def\bsfee{{\bm{\mathsf{e}}}}
+\def\bsfff{{\bm{\mathsf{f}}}}
+\def\bsfg{{\bm{\mathsf{g}}}}
+\def\bsfh{{\bm{\mathsf{h}}}}
+\def\bsfi{{\bm{\mathsf{i}}}}
+\def\bsfj{{\bm{\mathsf{j}}}}
+\def\bsfk{{\bm{\mathsf{k}}}}
+\def\bsfl{{\bm{\mathsf{l}}}}
+\def\bsfm{{\bm{\mathsf{m}}}}
+\def\bsfn{{\bm{\mathsf{n}}}}
+\def\bsfo{{\bm{\mathsf{o}}}}
+\def\bsfp{{\bm{\mathsf{p}}}}
+\def\bsfq{{\bm{\mathsf{q}}}}
+\def\bsfr{{\bm{\mathsf{r}}}}
+\def\bsfs{{\bm{\mathsf{s}}}}
+\def\bsft{{\bm{\mathsf{t}}}}
+\def\bsfu{{\bm{\mathsf{u}}}}
+\def\bsfv{{\bm{\mathsf{v}}}}
+\def\bsfw{{\bm{\mathsf{w}}}}
+\def\bsfx{{\bm{\mathsf{x}}}}
+\def\bsfy{{\bm{\mathsf{y}}}}
+\def\bsfz{{\bm{\mathsf{z}}}}
+\def\bsf0{{\bm{\mathsf{0}}}}
+
+
+
+% Bold greek 
+\def\balpha{\bm \alpha}
+\def\btheta{\bm \theta}
+\def\btau{\bm \tau}
+\def\bbeta{\bm \beta}
+\def\bvartheta{\bm \vartheta}
+\def\bpi{\bm \pi}
+\def\bupsilon{\bm \upsilon}
+\def\bgamma{\bm \gamma}
+\def\bvarpi{\bm \varpi}
+\def\bphi{\bm \phi}
+\def\bdelta{\bm \delta}
+\def\bkappa{\bm \kappa}
+\def\brho{\bm \rho}
+\def\bvarphi{\bm \varphi}
+\def\bepsilon{\bm \epsilon}
+\def\blambda{\bm \lambda}  
+\def\bvarrho{\bm \varrho}
+\def\bchi{\bm \chi}
+\def\bvarepsilon{\bm \varepsilon}
+\def\bmu{\bm \mu}
+\def\bsigma{\bm \sigma}
+\def\bpsi{\bm \psi}
+\def\bzeta{\bm \zeta}
+\def\bnu{\bm \nu}
+\def\bvarsigma{\bm \varsigma}
+\def\bomega{\bm \omega}
+\def\boldeta{\bm \eta}
+\def\bGamma{\bm \Gamma}
+\def\bLambda{\bm \Lambda}
+\def\bSigma{\bm \Sigma}
+\def\bPsi{\bm \Psi}
+\def\bDelta{\bm \Delta}
+\def\bUpsilon{\bm \Upsilon}
+\def\bOmega{\bm \Omega}
+\def\bTheta{\bm \Theta}  
+\def\bPi{\bm \Pi}
+\def\bPhi{\bm \Phi}
+\def\rmd{\mathrm{d}}
+\def\fc{f_\mathrm{c}}
+\def\fm{f_\mathrm{m}}
+\def\ft{f_\mathrm{t}}
+\def\fe{f_\mathrm{e}}
+\def\fs{f_\mathrm{s}}
+\def\fN{f_\mathrm{N}}
+\def\Tx{T_\mathrm{x}}
+\def\Te{T_\mathrm{e}}
+\def\Tr{T_\mathrm{r}}
+\def\Ts{T_\mathrm{s}}
+\def\Mtx{M_\mathrm{tx}}
+\def\Nbs{N_{\mathrm{bs}}}
+\def\Mrx{M_\mathrm{rx}}
+\def\Jmoe{J_\mathrm{MOE}}
+\def\Jmoed{J_\mathrm{MOE,d}}
+\def\Jmoee{J_\mathrm{MOE,e}}
+\def\Jmoedv{J_\mathrm{MOE,der}}
+\def\Jopt{J_\mathrm{opt}}
+\def\kstar{k^{\star}}
+%\def\xc{x_{\mathrm{c}}}
+%\def\Xc{X_{\mathrm{c}}}
+%\def\yc{y_{\mathrm{c}}}
+%\def\Yc{Y_{\mathrm{c}}}
+\def\xc{x} % note commented out b/c c subscript not needed for signals
+\def\ri{r_{\mathrm{i}}}  
+\def\rq{r_{\mathrm{q}}}
+\def\rp{r_{\mathrm{p}}} 
+
+\def\xtilde{\tilde{x}}
+\def\ytilde{\tilde{y}}
+\def\rtilde{\tilde{r}}
+\def\xs{x_{\mathrm{s}}} % note commented out b/c c subscript not needed for signals
+\def\Xc{X}
+\def\yc{y}
+\def\vc{v}
+\def\Yc{Y}
+\def\hpb{h_{\mathrm{pb}}}
+\def\hc{h_{\mathrm{c}}}
+\def\hpb{h_{\mathrm{pc}}}
+\def\hs{h_{\mathrm{s}}}
+\def\Gmimo{G_{\mathrm{MIMO}}}
+\def\PAS{P_{\mathrm{az}}}
+\def\AS{\sigma_{\mathrm{as}}}
+\def\bhs{\mathbf{h}_{\mathrm{s}}}
+\def\bHs{\mathbf{H}_{\mathrm{s}}}
+\def\bHw{\mathbf{H}_{\mathrm{w}}}
+\def\bRrx{\mathbf{R}_{\mathrm{rx}}}
+\def\bRtx{\mathbf{R}_{\mathrm{tx}}}
+\def\sigshad{\sigma_{\mathrm{shad}}} 
+\def\Pr{P_{\mathrm{r}}}
+\def\Prlin{P_{\mathrm{r,lin}}}
+\def\Prlinlos{P_{\mathrm{r,lin,los}}}
+\def\Prlinnlos{P_{\mathrm{r,lin,nlos}}}
+\def\Pt{P_{\mathrm{t}}}
+\def\Plos{P_{\mathrm{los}}}
+\def\plos{p_{\mathrm{los}}}
+\def\Ptxlin{P_{\mathrm{tx,lin}}}
+\def\Prxlin{P_{\mathrm{rx,lin}}}
+\def\Ptx{P_{\mathrm{tx}}}
+\def\Prx{P_{\mathrm{rx}}}
+\def\Gr{G_{\mathrm{r}}}
+\def\Gt{G_{\mathrm{t}}}
+\def\Grlin{G_{\mathrm{r,lin}}}
+\def\Gtlin{G_{\mathrm{t,lin}}}
+\def\Hc{H_{\mathrm{c}}}
+\def\Rs{R_{\mathrm{s}}}
+\def\Prlos{P_{\mathrm{r}}^{\mathrm{los}}}
+\def\Prnlos{P_{\mathrm{r}}^{\mathrm{nlos}}}
+\def\epsres{\epsilon_{\text{res}}}
+
+
+% Other specific definitions
+\def\j{\mathrm{j}}
+\def\rect{\mathrm{rect}}
+\def\Re{\mathrm{Re}}
+\def\Im{\mathrm{Im}}
+\def\xp{x_{\mathrm{p}}}
+\def\hp{h_{\mathrm{p}}}
+\def\yp{y_{\mathrm{p}}}
+\def\xi{x_{\mathrm{i}}}
+\def\xq{x_{\mathrm{q}}}
+\def\yi{y_{\mathrm{i}}}
+\def\yq{y_{\mathrm{q}}}
+\def\Xp{X_{\mathrm{p}}}
+\def\Yp{Y_{\mathrm{p}}}
+\def\Hp{H_{\mathrm{p}}}
+\def\Hb{H_{\mathrm{b}}}
+\def\ybar{\bar{y}}
+\def\taud{\tau_{\mathrm{d}}}
+\def\Jopt{\J_{\mathrm{opt}}}
+\def\bxLS{\mathbf{x}_{\mathrm{LS}}}
+\def\bCxx{\mathbf{C}_{\mathrm{xx}}}
+\def\bCvv{\mathbf{C}_{\mathrm{vv}}}
+\def\bCxv{\mathbf{C}_{\mathrm{xv}}}
+\def\bCyy{\mathbf{C}_{\mathrm{yy}}}
+\def\bCyx{\mathbf{C}_{\mathrm{yx}}}
+\def\bCxy{\mathbf{C}_{\mathrm{xy}}}
+\def\bxmmse{\mathbf{x}_{\mathrm{MMSE}}}
+%\def\sfxc{{\mathsf{x}_\mathrm{c}}}
+%\def\sfyc{{\mathsf{y}_\mathrm{c}}}
+\def\sfxc{{\mathsf{x}}}
+\def\sfyc{{\mathsf{y}}}
+\def\sfhc{{\mathsf{h}_\mathrm{c}}}
+\def\sfxp{{\mathsf{x}_\mathrm{p}}}
+\def\sfyp{{\mathsf{y}_\mathrm{p}}}
+\def\sfhp{{\mathsf{h}_\mathrm{p}}}
+\def\sfhb{{\mathsf{h}_\mathrm{b}}}
+\def\sfybar{{\mathsf{y}_\mathrm{p}}}
+
+% Other notation
+\def\E{{\mathbb E}}
+\def\P{{\mathbb P}}
+
+% Abbreviations for things
+\def\4qam{$4-$QAM}
+\def\16qam{$16-$QAM}
+\def\64qam{$64-$QAM}
+\def\c4qam{\cC_{\text{4-QAM}}}
+\def\c4qam{\cC_{\text{4-QAM}}}
+\def\c4qam{\cC_{\text{4-QAM}}}
+
+%\def\c16qam{\cC_{\text{16-QAM}}}
+%\def\c64qam{\cC_{\text{64-QAM}}}
+
+
+% Book Title
+\newcommand{\fullbooktitle}{Wireless Digital Communication Using the USRP and MATLAB }
+\newcommand{\booktitle}{Wireless Digital Commun. Using the USRP and MATLAB }
+
+% Chapter Numbers (minus one because called before chapter command)
+\newcommand{\HardwareNum}{0}
+\newcommand{\SettingUpNum}{1}
+\newcommand{\EstimatingReceiverNum}{2}
+\newcommand{\SamplingAliasingNum}{3}
+\newcommand{\AWGNNum}{4}
+\newcommand{\NarrowbandImpairmentsNum}{5}
+\newcommand{\SCFDEandChannelEstimationNum}{6}
+\newcommand{\JointCFOandSynchronizationNum}{7}
+\newcommand{\OFDMandChannelEstimationNum}{8}
+\newcommand{\SynchronizationInOFDMNum}{9}
+
+
+% Chapter with Numbers
+%\newcommand{\Intro}{Chapter 1}
+\newcommand{\Hardware}{Lab 1}
+\newcommand{\SettingUp}{Lab 2}
+\newcommand{\EstimatingReceiver}{Lab 3}
+\newcommand{\SamplingAliasing}{Lab 4}
+\newcommand{\AWGN}{Lab 5}
+\newcommand{\NarrowbandImpairments}{Lab 6}
+\newcommand{\SCFDEandChannelEstimation}{Lab 7}
+\newcommand{\JointCFOandSynchronization}{Lab 8}
+\newcommand{\OFDMandChannelEstimation}{Lab 9}
+\newcommand{\SynchronizationInOFDM}{Lab 10}
+\newcommand{\MIMOOFDM}{Lab 11}
+
+% Chapter Titles
+%\newcommand\IntroTitle{Introduction}
+\newcommand{\HardwareTitle}{Software defined radio and the USRP hardware}
+\newcommand{\SettingUpTitle}{Working with the USRP}
+\newcommand{\EstimatingReceiverTitle}{Estimating signal parameters}
+\newcommand{\SamplingAliasingTitle}{Sampling and interpolation}
+\newcommand{\AWGNTitle}{Communication in AWGN channels}
+\newcommand{\NarrowbandImpairmentsTitle}{Narrowband channel impairments}
+\newcommand{\SCFDEandChannelEstimationTitle}{SCFDE and channel estimation}
+\newcommand{\JointCFOandSynchronizationTitle}{Joint carrier frequency offset estimation and synchronization}
+\newcommand{\OFDMandChannelEstimationTitle}{OFDM and channel estimation}
+\newcommand{\SynchronizationInOFDMTitle}{Synchronization in OFDM systems}
+
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\footrulewidth}{0pt}
+\newcommand{\helv}{%
+    \fontfamily{phv}\fontseries{b}\fontsize{9}{11}\selectfont}
+\fancyhf{}
+\fancyhead[LE,RO]{\helv  \thepage}
+
+
+\DeclareFontFamily{U}{wncy}{}
+\DeclareFontShape{U}{wncy}{m}{n}{<->wncyr10}{}
+\DeclareSymbolFont{mcy}{U}{wncy}{m}{n}
+\DeclareMathSymbol{\Sha}{\mathord}{mcy}{"58} 

@@ -1,0 +1,341 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% delete the stuff here when we compile the whole book
+\documentclass{book}
+
+\input{input.tex} % Make sure this is in the correct directory
+\usepackage{multirow}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\fancyhead[RE]{\helv  \bfseries \booktitle{}}
+\fancyhead[LO]{\helv  \bfseries \MIMOOFDM{} MIMO-OFDM}
+\setcounter{chapter}{10}
+\chapter{\MIMOOFDM{} MIMO-OFDM}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sloppy % XXX I HAVE INCLUDED THIS SO THAT VARIABLES WRAP CORRECTLY AND NOT GET IN THE MARGIN 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+In this lab, you will be implementing an orthogonal frequency division modulation (OFDM) multiple input, multiple output (MIMO) system with 2 transmit antennas and 2 receive antennas. The main tasks will be to update the OFDM preamble, estimate the multiple channels simultaneously, and extend our detection scheme to MIMO. 
+
+The prelab involves writing code to update the OFDM preamble, channel estimation, and detection for a 2x2 MIMO system. In the lab, you will set up a 2x2 MIMO system, observe the performance of your receiver in realistic transmission conditions, and study the impact of different choices of parameters.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Background}
+
+This section provides a review of the key ideas of MIMO-OFDM that will be necessary for the lab. We will first cover information about the  system model, and then provide an overview of channel estimation, and detection. You may refer to   \cite[Chapter 6, Section 5]{Hea:Introduction-to-Wireless-Digital:17} for more information about MIMO-OFDM.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{System Model}
+\begin{figure}
+\begin{center}
+\includegraphics[width=\columnwidth]{lab11/figure2.png}
+\caption{Transmitter for a 2x2 MIMO-OFDM system with spatial multiplexing.} \label{transmit}
+\end{center} 
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=\columnwidth]{lab11/figure3.png}
+\caption{Receiver for a 2x2 MIMO-OFDM system with spatial multiplexing. The key blocks that will be implemented in this lab is channel estimation and joint detection.} \label{receive}
+\end{center} 
+\end{figure}
+
+Let $\sfs[n]$ represent a single symbol stream. For the model, $\sfs[n]$ is split in to $N_t$ different sets of subsymbols after going through the spatial multiplexer where $N_t$ is the number of transmit antennas. Let $\sfs_j[n]$ represent the set of subsymbols for transmit antenna $j$. Each set of subsymbols then proceed through a SISO-OFDM system. Let $w_j[n]$ represent the time domain signal that will be sent over the channel that includes the cyclic prefix. The block diagram in Figure \ref{transmit} represents the MIMO-OFDM transmitter.
+
+On the receive side, each receive antenna will see some combination of all transmit signals. The block diagram in Figure \ref{receive} represents the MIMO-OFDM receiver. In addition, for transmit antenna $j$ and receive antenna $i$, there is a unique channel $h_{i,j}[l]$. The signal from receive antenna $i$ can be written as:
+\begin{equation}
+    y_i[n] = \sum_{j=1}^{N_t}\sum_{l=0}^{L} h_{i,j}[l]w_j[n-l] + v_i[n]
+\end{equation}
+We will now rewrite the equation in the frequency domain. First we can take N-DFT of the channel.
+\begin{equation}
+    \sfh_{i,j}[k] = \sum_{l=0}^L h_{i,j}[l]e^{-j\frac{2\pi kl}{N}}
+\end{equation}
+Then, after removing the cyclic prefix from $w_j[n]$ and taking the N-DFT of it, we can rewrite the channel as follows:
+\begin{equation}
+    \sfy_i[k] = \sum_{j=1}^{N_t} \sfh_{i,j}[k]\sfs_j[k] + \sfv[k]
+\end{equation}
+Now, we can write this in full matrix form by stacking the receive signals $\sfy_i[k]$, the transmitted symbols $\sfs_j[k]$, and defining the full channel matrix response as $|\bsfH[k]|_{i,j} =\sfh_{i,j}[k]$.
+\begin{equation}
+    \bsfy[k] = \bsfH[k]\bsfs[k] + \bsfv[k]
+\end{equation}
+Note that $\bsfy[k]$ is size ($N_r$ by 1); $\bsfs[k]$ is size ($N_t$ by 1); $\bsfH[k]$ is size ($N_r$ by $N_t$); and $\bsfv[k]$ is size ($N_r$ by 1)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{OFDM Preamble}
+In this section, we will discuss how we design our channel estimation field in the preamble. For the channel estimation field, we are using unique Zadoff-Chu sequences for each antenna. The Zadoff-Chu sequence is defined as follows:
+\[
+p[n] = 
+        \begin{array}{cc}
+ \Bigg\{ & 
+        \begin{array}{cc}
+          e^{j\frac{M\pi n^2}{N_p}} & N_p \textrm{ is even}\\ [0.5em]
+          e^{j\frac{M\pi n(n+1)}{N_p}} & N_p \textrm{ is odd}
+        \end{array}
+    \end{array}
+\]
+where $N_p$ is the length of the sequence and $M$ is coprime with $N_p$. So essentially for each antenna, pick a unique number $M$ that is coprime with $N_p$. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Channel estimation}
+    Once frame synchronization and the carrier frequency offset correction is complete, we can move on to channel estimation. A key component to this is that each transmit antenna needs to send unique training sequences with good correlation properties. This approach sends training over only one OFDM symbol so it is better to estimate the channels in time domain. The following derivation references \cite[Chapter 6, Section 5.4]{Hea:Introduction-to-Wireless-Digital:17}.
+    
+    In the frequency domain, let $\{\bsft[k]\}_{k=0}^{N-1}$ be the known training sequence and the received signal is
+    \begin{equation}\label{eq1}
+        \bsfy[k] = \bsfH[k]\bsft[k] + \bsfv[k], k\in [0,N-1]
+    \end{equation}
+    Now, we rewrite the $\bsfH[k]$ in the time domain and expand it out. 
+    \begin{align}
+        \bsfH[k] &= \sum_l^L \bsfH[l]e^{-j\frac{2\pi kl}{N}} \\ 
+                 &= 
+                 \begin{bmatrix}
+                    \bH[0] & \bH[1] &  \hdots & \bH[L]
+                 \end{bmatrix}
+                 \begin{bmatrix}
+                    \bI_{N_t} \\ 
+                    e^{-j\frac{2\pi k}{N}}\bI_{N_t} \\ 
+                    \vdots \\ 
+                    e^{-j\frac{2\pi kL}{N}}\bI_{N_t}
+                 \end{bmatrix} \\
+                 &= \begin{bmatrix}
+                    \bH[0] & \bH[1] &  \hdots & \bH[L]
+                 \end{bmatrix}
+                 (\bee[k] \otimes \bI_{N_t}) \\
+   \vecc(\bsfH[k]) &= ((\bee[k]^T \otimes \bI_{N_t}) \otimes \bI_{N_r}) 
+                    \begin{bmatrix}
+                        \vecc(\bH[0]) \\
+                        \vecc(\bH[1]) \\
+                        \vdots \\ 
+                        \vecc(\bH[L])
+                    \end{bmatrix} \\
+                &= ((\bee[k]^T \otimes \bI_{N_t}) \otimes \bI_{N_r}) \bh \label{eq2}
+    \end{align}
+    where 
+    \begin{align}
+        \bee[k] = \begin{bmatrix}
+            1 & e^{-j\frac{2\pi k}{N}} & \hdots & e^{-j\frac{2\pi kL}{N}} 
+        \end{bmatrix} \\ 
+        \bh = \begin{bmatrix}
+                        \vecc(\bH[0]) \\
+                        \vecc(\bH[1]) \\
+                        \vdots \\ 
+                        \vecc(\bH[L])
+             \end{bmatrix}
+    \end{align}
+    We can now plug in \ref{eq2} into \ref{eq1}:
+    \begin{align}
+        \bsfy[k] &= \vecc(\bsfH[k]\bsft[k]) + \bsfv[k] \\
+        &= (\bsft[k]^T \otimes \bI_{N_r})\vecc(\bsfH[k]) + \bsfv[k] \\
+        &=(\bee[k]^T \otimes \bsft[k]^T \otimes \bI_{N_r})\bh + + \bsfv[k] \label{eq3}
+    \end{align}
+    Now, by stacking all subcarriers $\cK = {k_1, k_2, ..., k_t}$,
+    \begin{align}
+        \bsfT &= \begin{bmatrix}
+                        \bee[k_1]^T \otimes \bsft[k_1]^T \otimes \bI_{N_r} \\
+                        \bee[k_2]^T \otimes \bsft[k_2]^T \otimes \bI_{N_r} \\
+                        \vdots \\ 
+                        \bee[k_t]^T \otimes \bsft[k_t]^T \otimes \bI_{N_r}
+                    \end{bmatrix} \\ 
+        \vec{\bsfy} &= \begin{bmatrix}
+                \bsfy[k_1] \\ \bsfy[k_2] \\ \vdots \\ \bsfy[k_t]
+        \end{bmatrix}
+    \end{align}
+    Now we can rewrite \ref{eq3}:
+    \begin{equation}
+        \vec{\bsfy} = \bsfT \bh + \bsfv
+    \end{equation}
+    We need enough subcarriers to make sure that $\bsfT$ is square or tall and that the training sequences are designed such that $\bsfT$ is full rank. Assuming it fits this criteria, we can compute the least squares estimate:
+    \begin{equation}\label{eq4}
+        \hat{\bh} = (\bsfT^*\bsfT)^{-1}\bsfT^*\vec{\bsfy}
+    \end{equation}
+    Lastly, to get the channel estimate in the frequency domain $\bsfH[k]$, we can plug \ref{eq4} into \ref{eq2} and reshape it so that it is not vectorized.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Detection}
+For this lab, we will be using a zero-forcing detector. The following derivation references \cite[Chapter 6, Section 5.2]{Hea:Introduction-to-Wireless-Digital:17}. Once the frequency domain channel estimate $\bsfH$ is computed, we define $\bsfG$ as the pseudo-inverse of $\bsfH$. Then we calculate a temporary vector $\bsfz$ for detection:
+\begin{align}
+    \bsfz[k] &= \bsfG[k]\bsfy[k] \\
+    \hat{s}[k] &= \arg \min_{c \in \cC} |\bsfz[k] - c|^2
+\end{align}
+Note that $c$ is a vector of the same size of $\bsfy[k]$ and each element is a possible symbol from 4-QAM. For this lab, since there are two transmit antennas, there are a total of 16 vectors in $\cC$. Also note that when implementing this, each element in $\bsfy[k]$ refers to a symbol sent from an antenna. The intuition for detection for MIMO is to figure out which combination of symbols that goes through the channel looks most like our observation. By going through all subcarriers $k$, we can append our detected symbols together as such
+    \begin{equation}
+        \hat{\bs} = \begin{bmatrix}
+            \hat{s}[k_1] & \hat{s}[k_2] & \hdots & \hat{s}[k_t]
+        \end{bmatrix}
+    \end{equation}
+A row in $\hat{\bs}$ will refer to the estimate of the symbols sent from a single transmit antenna.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Prelab}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+This section describes what you should plan to accomplish prior to attending the lab. Your instructor may require you to turn in parts of your solution for each subsection. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Writing code to implement key functions in a MIMO-OFDM system}
+Write code to implement the following operations for a system that transmits data in frames with a length $\Ntr$ cyclically prefixed Zadoff-Chu sequence with cyclic prefix size $\Lp$. Your data should also have a cyclic prefix of length $\Lc$.
+\begin{itemize}
+\item OFDM preamble generation. Generate the unique training sequences used for each transmit antenna and add the cyclic prefix. The structure of this function is given in the file \verb|ofdm_preamble_generator.m|.
+\item Channel estimation. The structure of this function is given in the file \verb|channel_estimation.m|.
+\item Symbol detection. The structure of this function is given in the file \verb|detect_symbol.m|. 
+\end{itemize}
+
+The template of all above functions are provided, you should fill in each of them. You cannot change the type and number of the input/output parameters.
+
+\turnin{Your code.} 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Testing your code}
+
+In this part, you will vary your SNR and record the SER. The required parameters are listed in \ref{sc_tab_sys_par_simulation}. These should be already defined in \verb|transmitter.m| and \verb|receiver.m|.
+
+Let $\{ \hat{h}[\ell,m] \}_{\ell=0}^L$ be the channel estimate in the $m$-th Monte Carlo simulation out of $M$ total simulations. The mean-squared error (MSE) is estimated as 
+\begin{align}
+\mathrm{MSE} & = \frac{1}{M} \sum_{m=0}^{M-1} \sum_{\ell=0}^L |  \hat{h}[\ell,m]  - h[\ell]|^2
+\end{align}
+This would apply to only on channel and is computed for you in \verb|receiver.m|. Report the average MSE of all channels. 
+\begin{table}[h!]
+	\caption{System parameters for frequency-selective channel evaluation (simulation)}
+	\begin{center}
+		\begin{tabular}{|c|c|c|} \hline
+			Property & Variable name &Value  \\ \hline	
+			Modulation scheme & \verb|M| & 4 \\ \hline
+			Type of channel sequence & \verb|training_seq_name| & 'Zadoff-Chu' \\ \hline
+			Repetition of training sequence & \verb|training_seq_repetition| & 1 \\ \hline
+			Length of Zadoff-Chu sequence & \verb|N_ZC| & 52 \\ \hline
+			Co-prime parameter with \verb|N_ZC| & \verb|M_ZC| & 3 \\ \hline
+			Co-prime parameter with \verb|N_ZC| & \verb|M_ZC2| & ? \\ \hline
+			Length of cyclic prefix for training $\Lp$ & \verb|L_P| & 16 \\ \hline
+			Number of DFT $N$ & \verb|N_carriers| & 64 \\ \hline
+			Length of cyclic prefix for data $\Lc$ & \verb|L_CP| & 16 \\ \hline			
+			Channel taps & \verb|channel_taps| & $h$\\ \hline
+			Carrier frequency offset & \verb|channel_cfo| & 200 \\ \hline
+			Channel Delay & \verb|channel_delay| & 10$\times$2e-7 \\ \hline
+			SNR & \verb|channel_snr_dB| & 1:30 dB\\ \hline
+			tx rx usrp sampling rate & \verb|usrp_sample_rate| & 5 MS/s \\ \hline
+			upsampling factor &  \verb|upsampling_factor| & 10   \\ \hline 
+			downsamping factor &  \verb|downsampling_factor| & 10   \\ \hline 
+			roll off factor $\alpha$  & \verb|roll_off| & 0.5 \\ \hline
+			filter spans length & \verb|filt_spans| & 6 symbols\\ \hline
+			Estimated order of channel & \verb|channel_order_estimate| & 5 \\ \hline
+			total frames received & \verb|total_frames_to_receive| & 100\\ \hline
+		\end{tabular}
+	\end{center} \label{sc_tab_sys_par_simulation}
+\end{table}
+
+\turnin{Report your average MSE and SER for SNR ranging from 1 to 30 dB or report the plots generated after running systemcheck.m}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Laboratory experiments}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{USRP Setup}
+In this lab, we are using 4 NI-USRP 2921's, where 2 are used for transmitter and 2 are used for the receiver. Each pair of USRP's are then connected with the MIMO cable. You will need 2 instances of MATLAB to run the lab, which means you can either have one computer with 2 Ethernet cables connected to the pair of USRP's and have 2 instances of MATLAB running for the transmitter and receiver, OR have two computers running an instance of MATLAB that are connected to a specific pair of USRP's. Make sure the IP addresses for the USRP's are unique. For more information on how to test connections and set the IP address, refer to lab 2.
+
+In addition, since there are differences between each USRP, an external clock source is necessary to sync the pair of transmitters and receivers. We are using 2 SRS Rubidium Frequency Standards (FS725) in the lab - one for each pair of USRP's. Connect the 10 MHz outputs from the FS725 to the 'ref in' of the USRP using a SMB to SMA cable which should be provided for you. Refer to Figure \ref{fs725} for an illustration of how to connect the FS725 to the USRP's.
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=\columnwidth]{lab11/figure1.png}
+\caption{This is an illustration of how to connect the FS725 (left) and USRP 2921 (right). For the FS725, the SMB to SMA cable can be connected to any of the 8 available 10 MHz outputs. For the USRP, the SMB to SMA cable is connected to the 'ref in' plug. For the second USRP, connect it to FS725 the same way by using another SMB to SMA cable and another available 10 MHz output.} \label{fs725}
+\end{center} 
+\end{figure}
+
+
+The system parameters used in this lab without particular declaration is given in \tabref{sc_tab_sys_par_exp}
+\begin{table}[h!]
+	\caption{System parameters for frequency-selective channel evaluation (simulation)}
+	\begin{center}
+		\begin{tabular}{|c|c|c|} \hline
+			Property & Variable name &Value  \\ \hline	
+			Modulation scheme & \verb|M| & 4 \\ \hline
+			Type of channel sequence & \verb|training_seq_name| & 'Zadoff-Chu' \\ \hline
+			Length of Zadoff-Chu sequence & \verb|N_ZC| & 52 \\ \hline
+			Co-prime parameter with \verb|N_ZC| & \verb|M_ZC| & 3 \\ \hline
+			Co-prime parameter with \verb|N_ZC| & \verb|M_ZC2| & ? \\ \hline
+			Length of cyclic prefix for training $\Lp$ & \verb|L_P| & 16 \\ \hline
+			Number of DFT $N$ & \verb|N_carriers| & 64 \\ \hline
+			Length of cyclic prefix for data $\Lc$ & \verb|L_CP| & 16 \\ \hline			
+			Channel Delay & \verb|channel_delay| & 10$\times$2e-7 \\ \hline
+			tx rx usrp sampling rate & \verb|usrp_sample_rate| & 5 MS/s \\ \hline
+			upsampling factor &  \verb|upsampling_factor| & 10   \\ \hline 
+			downsamping factor &  \verb|downsampling_factor| & 10   \\ \hline 
+			roll off factor $\alpha$  & \verb|roll_off| & 0.5 \\ \hline
+			filter spans length & \verb|filt_spans| & 6 symbols\\ \hline
+			Estimated order of channel & \verb|channel_order_estimate| & 3 \\ \hline
+			total frames received & \verb|total_frames_to_receive| & 100\\ \hline
+		\end{tabular}
+	\end{center} \label{sc_tab_sys_par_exp}
+\end{table}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Experiment 1: Estimate SER Performance of your system}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Run your code and compute the SER for 5 iterations of 5 different SNR levels. 
+\turnin{The measured SER for 5 different SNR levels}
+
+%%%%%%%%%%%%%
+\subsection{Experiment 2: Performance Comparison}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Compare your data to the performance of SISO-OFDM from Lab 9 or 10. Plot the average SER over SNR and compare the SISO and MIMO systems. Explain your observations.
+\turnin{Overlay plot of SISO and MIMO SER over SNR and your explanation.}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Experiment 3: Unplugging an Antenna}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Completely unscrew one transmit antenna and run your code. At high SNR, on average over 5 iterations, what is the SER? Theoretically what should the SER be and why?
+
+\turnin{Report your expected SER, experimental SER, and explanation. }
+
+\section{Solutions}
+\subsection{Prelab}
+Refer to figures \ref{prelab1} and \ref{prelab2}
+\begin{figure}
+\begin{center}
+\includegraphics[width=\columnwidth]{lab11/prelab1.jpg}
+\caption{Plotting the average SER over SNR for MIMO-OFDM simulation.} \label{prelab1}
+\end{center} 
+\end{figure}
+\begin{figure}
+\begin{center}
+\includegraphics[width=\columnwidth]{lab11/prelab2.jpg}
+\caption{Plotting the average MSE over SNR for MIMO-OFDM simulation.} \label{prelab2}
+\end{center} 
+\end{figure}
+\subsection{Experiment 1}
+    Refer to table \ref{exp1}
+    \begin{table}[h!] \caption{The average SER over SNR}
+        \begin{center} 
+            \begin{tabular}{c|c}
+                SNR & SER  \\ \hline
+              0.5862   & 0.5751 \\    
+              9.5031   & 0.3007   \\ 
+              16.4995  & 0.1146    \\
+              23.9156  & 0.0134    \\
+              31.6561  & 0.0005    \\
+              38.8820  & 0.0016
+            \end{tabular}
+        \end{center}
+    \end{table} \label{exp1}
+\subsection{Experiment 2}
+MIMO-OFDM tends to do better at lower SNR's because of an increase in diversity gain. Refer to Figure \ref{exp2}.
+\begin{figure}
+\begin{center}
+\includegraphics[width=\columnwidth]{lab11/exp2.jpg}
+\caption{Plotting the average SER over SNR for MIMO-OFDM and SISO-OFDM.} \label{exp2}
+\end{center} 
+\end{figure}
+\subsection{Experiment 3}
+    The SER should average out to be 0.375 or $\frac{3}{8}$. Based on our model, one set of subsymbols should be perfectly sent. During detection, we are trying to see the best combination of two symbols that are sent through the channel. We can always detect the first symbol but the second symbol of the combination could anything. If antenna 2 is disconnected, then we can fully detect $\sfs_1[n]$ and randomly detect $sfs_2[n]$ at rate of 0.25. So in total should be 0.375.
+%%%%%%%%%%%%%%%%%%%%
+% Below will be deleted when we compile the whole book
+% Make sure this is in the correct directory
+\setlength{\baselineskip}{1pt}
+\bibliographystyle{IEEEtran}
+\bibliography{IEEEabrv,new_lab_refs_rwh,new_refs}
+\end{document},
